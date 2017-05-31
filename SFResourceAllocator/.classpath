@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="C:/Code/DataAnalysis/SFResourceAllocator/lib/org.apache.log4j_1.2.13.v200903072027.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/SFCore"/>
+	<classpathentry kind="lib" path="C:/Code/DataAnalysis/SFCore/lib/geocoder-java-0.15.jar"/>
+	<classpathentry kind="lib" path="C:/Code/DataAnalysis/SFCore/lib/commons-cli-1.2.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/Code/DataAnalysisBB/dataanalysis/SFResourceAllocator/lib/com.google.ortools.jar"/>
+	<classpathentry kind="lib" path="C:/Code/DataAnalysisBB/dataanalysis/SFResourceAllocator/lib/protobuf.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

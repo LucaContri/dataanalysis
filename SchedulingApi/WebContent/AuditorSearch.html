@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Auditor Search Tool</title>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+		<script type="text/javascript" src="javascript/jquery.tokeninput.js"></script>
+		<script type="text/javascript" src="javascript/dynamic.table.js"></script>
+		<script type="text/javascript" src="javascript/calendar.js"></script>
+		<link rel="stylesheet" type="text/css" href="styles/auditor_search_response.css" />
+		<link rel="stylesheet" type="text/css" href="styles/token-input.css" />
+    	<link rel="stylesheet" type="text/css" href="styles/token-input-auditor-search.css" />
+    	<link rel="stylesheet" type="text/css" href="styles/calendar.css" />
+	</head>
+	
+	<body>
+		<div id="header">
+			<input type="text" id="parameters_input" class="input" name="parameters_input" />
+			<!--
+	        <input type="submit" value="search" class="button" />
+			-->
+			<script>
+	        $(document).ready(function() {
+	            $("#parameters_input").tokenInput("parameters", {
+	                theme: "auditor-search",
+	                hintText: "Type any states, months, standards, codes, resource type, ranks, resource name,... "
+	            });
+	        });
+	        </script>
+		<div class="clear"></div>
+		</div>
+		<div id="work_item_resources">
+			
+			<p><span id="messages" style="visibility:hidden" class="notes"></span></p>
+			<h4 id="heading" style="visibility:hidden">Auditors</h4>
+			<table id="auditors_data" class="resources" style="visibility:hidden"></table>
+			<script type="text/javascript">
+				var dt = dynamicTable.config('auditors_data', 
+                    ['Name', 'type', 'reportingBusinessUnit', 'periods'], 
+                    ['Name', 'Type', 'Business Unit', 'Available Days'], //set to null for field names instead of custom header names
+                    'There are no items to list...');
+
+				$(document).ready(function() {
+		    	//$("input[type=submit]").click(function () {
+		        $("input[type=text]").change(function () {
+		            // Hide Result Table and show load image
+		            document.getElementById("auditors_data").style.visibility="hidden";
+		            document.getElementById("heading").style.visibility="hidden";
+		            document.getElementById("messages").style.visibility="hidden";
+		            $('#loader').show();
+		            if (window.XMLHttpRequest) {
+		            	// code for IE7+, Firefox, Chrome, Opera, Safari
+		            	xmlhttp=new XMLHttpRequest();
+		            } else {
+		            	// code for IE6, IE5
+		            	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+		            }
+		            if ($(this).val().length>=0) {
+		            	var url = "auditorSearch?q=" + $(this).val();
+		            	xmlhttp.open("GET",url,false);
+			          	xmlhttp.send();
+			          	apiResponse = JSON.parse(xmlhttp.responseText); 
+						
+			          	if (apiResponse.errorMessage.length>0) {
+			          		document.getElementById('messages').innerHTML = apiResponse.errorMessage;
+			          		document.getElementById("messages").style.visibility="visible";
+			          	}
+			          	
+			          	var requirements = apiResponse.client[0].clientSites[0].siteCertifications[0].workItems[0].requiredCompetencies;
+			          	var auditors = apiResponse.client[0].clientSites[0].siteCertifications[0].workItems[0].allocatedResources;
+			          	dt.clear();
+			          	dt.load(auditors);
+			         	// Show Result Table and Hide load image
+			         	document.getElementById("auditors_data").style.visibility="visible";
+			          	document.getElementById("heading").style.visibility="visible";
+			          	$('#loader').hide();
+            		}
+		        });
+		    });
+		    
+		    </script>
+	    </div>
+</body>
+</html>

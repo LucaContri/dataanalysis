@@ -1,0 +1,45 @@
+.wrapper {
+    width: 100%;
+    text-align: center;
+}
+
+.ui-grid-a {
+	padding-top:5px;
+	padding-bottom:10px;
+	padding-right:10px;
+	padding-left:10px;
+	text-align: left;
+}
+
+#auditdays_notes {
+	padding-top:5px;
+	padding-bottom:10px;
+	padding-right:10px;
+	padding-left:10px;
+	text-align: left;
+}
+
+.notes {
+	font-size:80%;
+	text-align: left;
+}
+
+.header {
+	font-size:90%;
+	font-weight:bold;
+	text-align:center;
+	background-color:#CCFFFF;
+	color:#000033;
+	-moz-border-radius: 15px;
+	border-radius: 15px;
+	padding-top:3px;
+	padding-bottom:3px;
+}
+
+.smallText {
+	font-size:75%
+}
+
+.superSmallText {
+	font-size:65%
+}

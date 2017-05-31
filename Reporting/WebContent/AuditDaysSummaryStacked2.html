@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Audit Days Summary</title>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <style type="text/css">
+
+svg {
+  border: solid 1px #ccc;
+  font: 10px sans-serif;
+  shape-rendering: crispEdges;
+}
+
+.legend text {
+  padding: 5px;
+  font: 14px sans-serif;
+  background: yellow;
+  box-shadow: 2px 2px 1px #888;
+}
+
+.timer text {
+  padding: 5px;
+  font: 500 80px "Helvetica Neue";
+  fill: #ddd;
+  background: yellow;
+  box-shadow: 2px 2px 1px #888;
+}
+
+.timer {
+  fill: #777;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+  cursor: ew-resize;
+}
+
+.line {
+  fill: none;
+  stroke: red;
+  stroke-width: 2.5px;
+}
+
+    </style>
+  </head>
+  <body>
+  	<h1>Audit Days Summary</h1>
+  	<p>MS + Food</p>
+    <script type="text/javascript">
+
+    
+var w = 1250,
+    h = 500,
+    legendDim = {width: 250, distance: 20, marginLeft: 30, mark:{width:40, height:20}},
+    margin = {top:20, right:legendDim.width+30, bottom:30, left:20},
+    x = d3.scale.ordinal().rangeRoundBands([0, w - margin.left - margin.right]),
+    y = d3.scale.linear().range([0, h - margin.top - margin.bottom]),
+    parse = d3.time.format("%m/%Y").parse,
+    format = d3.time.format("%b-%y"),
+    visual = {delay: 100};
+
+var svg = d3.select("body").append("svg:svg")
+    .attr("width", w)
+    .attr("height", h)
+  .append("svg:g")
+    .attr("transform", "translate(" + margin.left + "," + (h - margin.bottom) + ")");
+
+d3.json("auditDaysSummary?stacked=true", function(error, json) {
+  if (error) return console.warn(error);
+  // Transpose the data into layers by status.
+  
+  var z = d3.scale.ordinal().range(json.colors);
+
+  var statuses = d3.layout.stack()(json.header.y.map(function(dat,i){
+      return json.instances[0].data.map(function(d){
+          return {x: new Date(Date.parse(d[0])), y: d[i+1] , s:json.header.y[i]};
+      })
+  }));
+  
+  // Compute the x-domain (by date) and y-domain (by top).
+  x.domain(statuses[0].map(function(d) { return d.x; }));
+  y.domain([0, 500+d3.max(statuses[statuses.length - 1], function(d) { return d.y0 + d.y; })]);
+  var xb = d3.scale.linear().domain([0, json.budget.length]).range([0, w - margin.left - margin.right]);
+  var yb = d3.scale.linear().range([0, h - margin.top - margin.bottom]);
+  
+  yb.domain([0, 500+d3.max(statuses[statuses.length - 1], function(d) { return d.y0 + d.y; })]);
+  
+  // Add a group for each status.
+  var status = svg.selectAll("g.status")
+      .data(statuses)
+    .enter().append("svg:g")
+      .attr("class", "status")
+      .style("fill", function(d, i) { return z(i); })
+      .style("stroke", function(d, i) { return d3.rgb(z(i)).darker(); });
+
+  // Add a rect for each date.
+  var rect = status.selectAll("rect")
+      .data(Object)
+    .enter().append("svg:rect")
+      //.attr("title", function(d) { return d.y; })
+      .attr("x", function(d) { return x(d.x); })
+      .attr("y", function(d) { return -y(d.y0) - y(d.y); })
+      .attr("height", function(d) { return y(d.y); })
+      .attr("width", x.rangeBand())
+	  .append("svg:title");
+  
+  //Add tooltip
+  status.selectAll("title")
+  	.data(Object)
+  	.text(function(d) { 
+  		return d.s + ": " + d.y.toFixed(0); 
+  		});
+  
+  var line = d3.svg.line()
+  .x(function(d, i) { return xb(i) + x.rangeBand()/2; })
+  .y(function(d, i) { return -yb(d) }); 
+
+  svg.append("path")
+    .datum(json.budget)
+    .attr("class", "line")
+    .attr("d", line); 
+   
+  // Add a label per date.
+  var label = svg.selectAll("text")
+      .data(x.domain())
+    .enter().append("svg:text")
+      .attr("x", function(d) { return x(d) + x.rangeBand() / 2; })
+      .attr("y", 6)
+      .attr("text-anchor", "middle")
+      .attr("dy", ".71em")
+      .text(format);
+
+  // Add y-axis rules.
+  var rule = svg.selectAll("g.rule")
+      .data(y.ticks(10))
+    .enter().append("svg:g")
+      .attr("class", "rule")
+      .attr("transform", function(d) { return "translate(0," + -y(d) + ")"; });
+
+  rule.append("svg:line")
+      .attr("x2", w - margin.right - margin.left)
+      .style("stroke", function(d) { return d ? "#fff" : "#000"; })
+      .style("stroke-opacity", function(d) { return d ? .7 : null; });
+
+  rule.append("svg:text")
+      .attr("x", w - margin.right - margin.left + 6)
+      .attr("dy", ".35em")
+      .text(d3.format(",d"));
+  	
+  var legend = svg.selectAll(".legend")
+	  .data(json.header.y)
+	.enter().append("svg:g")
+	  .attr("class", "legend");
+      
+  legend.append("text")
+      .text(function(d,i) { return d  })
+      .attr("x", w - legendDim.width +  legendDim.marginLeft + legendDim.mark.width+10)
+      .attr("y", function(d,i) { return -margin.bottom -(h -margin.bottom -margin.top)/2 - (i-(statuses.length+1)/2)*(legendDim.distance+legendDim.mark.height)  })
+
+  legend.append("rect")
+	  .attr("x", w - legendDim.width + legendDim.marginLeft)
+	  .attr("y", function(d,i) { return -margin.bottom -(h -margin.bottom -margin.top)/2 - (i-(statuses.length+1)/2)*(legendDim.distance+legendDim.mark.height) -legendDim.mark.height/2-5  })
+	  .attr("width", legendDim.mark.width)
+	  .attr("height", legendDim.mark.height)
+	  .style("fill", function(d,i) { return json.colors[i]  });
+
+//Add legend for budget line
+  var budgetLegend = svg.append("g")
+  	.attr("class", "legend");
+  
+  budgetLegend.append("text")
+  	.text("Budget")
+  	.attr("x", w - legendDim.width + legendDim.marginLeft + legendDim.mark.width+10)
+  	.attr("y", -margin.bottom -(h -margin.bottom -margin.top)/2 - ((statuses.length)/2)*(legendDim.distance+legendDim.mark.height)  );
+  
+  budgetLegend.append("rect")
+	  .attr("x", w - legendDim.width + legendDim.marginLeft)
+	  .attr("y", -margin.bottom -(h -margin.bottom -margin.top)/2 - ((statuses.length)/2)*(legendDim.distance+legendDim.mark.height) -7.5)
+	  .attr("width", legendDim.mark.width)
+	  .attr("height", 2.5)
+	  .style("fill", "red");
+  	
+  	
+  var timer = svg.append("svg:g")
+	  .attr("class", "timer")
+	  .append("text")
+	  .text(json.instances[0].date)
+	  .attr("x", +10)
+	  .attr("y", -h +margin.top + 80 );
+  
+  //Add an overlay for the year label.
+  var box = timer.node().getBBox();
+
+  var overlay = svg.append("rect")
+        .attr("class", "overlay")
+        .attr("x", box.x)
+        .attr("y", box.y)
+        .attr("width", box.width)
+        .attr("height", box.height)
+        .on("mouseover", enableInteraction);
+  
+  //Start a transition that interpolates the data based on timer.      
+  svg.transition()
+  	  .duration(visual.delay*json.instances.length)
+  	  .ease("linear")
+   	  .tween("timer", tweenTimer)
+   	  .each("end", enableInteraction);
+   	  
+  function tweenTimer() {
+	  var instance = d3.interpolateNumber(0, json.instances.length-1);
+	  return function(t) { displayInstance(instance(t)); };
+  }
+  
+  // After the transition finishes, you can mouseover to change the year.
+  function enableInteraction() {
+    var timerScale = d3.scale.linear()
+        .domain([0, json.instances.length-1])
+        .range([box.x + 10, box.x + box.width - 10])
+        .clamp(true);
+
+    // Cancel the current transition, if any.
+    svg.transition().duration(0);
+
+    overlay
+        .on("mouseover", mouseover)
+        .on("mouseout", mouseout)
+        .on("mousemove", mousemove)
+        .on("touchmove", mousemove);
+
+    function mouseover() {
+      timer.classed("active", true);
+    }
+
+    function mouseout() {
+    	timer.classed("active", false);
+    }
+
+    function mousemove() {
+      displayInstance(timerScale.invert(d3.mouse(this)[0]));
+    }
+  }
+  
+//Updates the display to show the specified year.
+	function displayInstance(i) {
+	  var ci = Math.floor(i);
+	  var ni = ci+1;
+	  
+	  var instance = json.instances[ci];
+	  //var nextInstance = instance;
+	  //if (ci<json.instances.length-1) {
+		  //console.log("Current: " + ci + "; Next: " + ni);
+		 //console.log("Start: " + json.instances[ci].data[10][5] + "; End: " + json.instances[ni].data[10][5] + "; Progress: " + (i-ci));
+	  	 //instance.data = interpolateValues(json.instances[ci].data, json.instances[ni].data, i-ci);
+	  //}
+	  var statuses = d3.layout.stack()(json.header.y.map(function(dat,i){
+	      return instance.data.map(function(d){
+	          return {x: new Date(Date.parse(d[0])), y: d[i+1], s:json.header.y[i]};
+	      })
+	  }));
+	  
+	  // Add a group for each status.
+	  var status = svg.selectAll("g.status")
+	      .data(statuses);
+	  
+	  // Add a rect for each date.
+	  var rect = status.selectAll("rect")
+	  	  .data(Object)
+	      .attr("x", function(d) { return x(d.x); })
+	      .attr("y", function(d) { return -y(d.y0) - y(d.y); })
+	      .attr("height", function(d) { return y(d.y); });
+	  
+	  // Add tooltip
+	  status.selectAll("title")
+	  	.data(Object)
+	  	.text(function(d) { 
+	  		return d.s + ": " + d.y.toFixed(0); 
+	  		});
+	  
+	  var timer = svg.selectAll(".timer").select("text")
+		.text(instance.date);
+  }
+
+  //Finds (and possibly interpolates) the value for the specified year.
+  function interpolateValues(startValues, endValues, progress) {
+	  // Init Return Value
+	  var returnValues = new Array(startValues.length);
+	  for (var i=0; i < returnValues.length; i +=1) {
+		  returnValues[i]=new Array(startValues[0].length);
+	  }
+	  
+	  startValues.forEach(function(period,index1) {
+		  period.forEach(function(status,index2) {
+			  if (index2>0) {
+				  var endStatus=endValues[index1][index2];
+				  returnValues[index1][index2] = status + (endStatus-status)*progress;
+			  } else {
+				  returnValues[index1][index2] = status;
+			  }
+				  
+		  } 
+		  )
+	  }
+  	  )
+  	  return returnValues;
+  }
+  
+});
+
+    </script>
+  </body>
+</html>

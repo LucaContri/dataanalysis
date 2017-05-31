@@ -1,0 +1,56 @@
+.wrapper {
+	width: 100%;
+	text-align: center;
+}
+
+.ui-grid-a {
+	padding-top: 5px;
+	padding-bottom: 10px;
+	padding-right: 10px;
+	padding-left: 10px;
+	text-align: left;
+}
+
+#auditdays_notes {
+	padding-top: 5px;
+	padding-bottom: 10px;
+	padding-right: 10px;
+	padding-left: 10px;
+	text-align: left;
+}
+
+.notes {
+	font-size: 80%
+}
+
+.mediumText {
+	font-size: 85%
+}
+
+.smallText {
+	font-size: 75%
+}
+
+.superSmallText {
+	font-size: 65%
+}
+
+.ui-tooltip {
+	background: white;
+	border: 1px solid #33FFFF;
+	padding: 10px 20px;
+	border-radius: 20px;
+	font: 13px Sans-Serif;
+	box-shadow: 0 0 7px black;
+	max-width: 800px;
+}
+
+.ui-tooltip table,td,th {
+	border-collapse: collapse;
+	border: 1px solid grey;
+	padding: 5px;
+}
+
+label {
+	display: inline-block;
+}

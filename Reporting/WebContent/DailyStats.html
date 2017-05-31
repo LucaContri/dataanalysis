@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+	<head>
+  		<title>Daily Statistics</title>
+  		<!-- Collapsable Sections -->
+  		<meta name="viewport" content="width=device-width, initial-scale=1">
+  		<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
+		<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+		<script src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+		<script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+  		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.css">
+  		<link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+		
+  		<!-- Google Visualisation API -->
+		<script src="https://maps.googleapis.com/maps/api/js?libraries=geometry,visualization&sensor=true"></script>
+		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	    <script type="text/javascript">
+	      google.load("visualization", "1", {packages:["corechart", "table", "gauge"]});
+	    </script>
+	    
+	    <!-- Local -->
+		<link rel="stylesheet" type="text/css" href="styles/dailyStats.css" />
+		<script type="text/javascript" src="javascript/visualisation.v2.js"></script>
+		
+		<script>
+	      google.setOnLoadCallback(updateAllVisualisations);
+	    </script>
+	</head>
+	<body>
+	
+	<div data-role="page" id="pageone">
+		<div data-role="header">
+			<h1>Daily Statistics</h1>
+			
+		</div>
+		<div data-role="main" class="ui-content">
+			<div data-role="collapsible" class="wrapper" id="audit_days_container">
+				<h1>Audit Days</h1>
+				<div data-role="controlgroup" data-type="horizontal">
+					<a id="MS_Button" data-role="button" >MS</a>
+					<a id="Food_Button" data-role="button">Food</a>
+					<a id="Both_Button" data-role="button" class="ui-btn-active">MS+Food</a>
+				</div>
+				<script type="text/javascript">
+					$("#MS_Button").click(function(){
+						updateAuditDaysToMS('auditdays_chart_header', 'auditdays_chart', 'auditdays_table_header', 'auditdays_table', 'auditdays_table_changes_daily_header', 'auditdays_table_changes_daily', 'auditdays_table_changes_weekly_header', 'auditdays_table_changes_weekly');
+						$('#Food_Button').removeClass('ui-btn-active');
+						$('#MS_Button').addClass('ui-btn-active');
+						$('#Both_Button').removeClass('ui-btn-active');
+				        return true; 
+				    });
+					$("#Food_Button").click(function(){
+						updateAuditDaysToFood('auditdays_chart_header', 'auditdays_chart', 'auditdays_table_header', 'auditdays_table', 'auditdays_table_changes_daily_header', 'auditdays_table_changes_daily', 'auditdays_table_changes_weekly_header', 'auditdays_table_changes_weekly');
+						$('#Food_Button').addClass('ui-btn-active');
+						$('#MS_Button').removeClass('ui-btn-active');
+						$('#Both_Button').removeClass('ui-btn-active');
+				        return true; 
+				    });
+					$("#Both_Button").click(function(){
+						updateAuditDaysToBoth('auditdays_chart_header', 'auditdays_chart', 'auditdays_table_header', 'auditdays_table', 'auditdays_table_changes_daily_header', 'auditdays_table_changes_daily', 'auditdays_table_changes_weekly_header', 'auditdays_table_changes_weekly');
+						$('#Food_Button').removeClass('ui-btn-active');
+						$('#MS_Button').removeClass('ui-btn-active');
+						$('#Both_Button').addClass('ui-btn-active');
+				        return true; 
+				    });
+				</script>		
+				<div class="ui-grid-a">
+					<div class="ui-block-a" id="auditdays_chart_header"></div>
+					<div class="ui-block-b" style="float:right; width:600px" id="auditdays_table_changes_daily_header"></div>
+				</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a" id="auditdays_chart"></div>
+					<div class="ui-block-b" style="float:right; width:600px" id="auditdays_table_changes_daily"></div>
+				</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a" id="auditdays_table_header"></div>
+					<div class="ui-block-b" style="float:right; width:600px" id="auditdays_table_changes_weekly_header"></div>
+				</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a" id="auditdays_table"></div>
+					<div class="ui-block-b" style="float:right; width:600px" id="auditdays_table_changes_weekly"></div>
+				</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a" ></div>
+					<div class="ui-block-b" style="float:right; width:600px" id="auditdays_table_changes_monthly_header"></div>
+				</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a"></div>
+					<div class="ui-block-b" style="float:right; width:600px" id="auditdays_table_changes_monthly"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="auditdays_notes">
+					<p class="notes">
+						Notes:
+						<ol class="notes">
+							<li>Scheduled - Work Item statuses 'Schedule' and 'Scheduled Offered'</li>
+							<li>Open - Work Item statuses 'Open' and 'Service Change'</li>
+							<li>Confirmed - Work Items in all other statuses</li>
+							<li>Forecast - Calculated daily based on historical available days changes.  For details please refer to: <a href="http://ourgateway.assurance.saiglobal.com/reference/australia/Opex/Audit%20Days%20Forecast.pdf" target="blank"><i>Audit Days Forecast Methodology</i></a>  available on GBP</li>
+							<li>Confirmed minus Budget ($) - Confirmed minus Budget days @ $1,750 as requested by Joe Kiernicki</li>
+						</ol>
+					</p>
+					</div>
+				</div>
+			</div>
+			<div data-role="collapsible" class="wrapper"  id="opportunity_container">
+				<h1>Opportunity Pipeline - MS &amp; Food</h1>
+				<div data-role="controlgroup" data-type="horizontal">
+					<a id="Yesterday_Button" data-role="button">Yesterday</a>
+					<a id="Week_Button" data-role="button">Week</a>
+					<a id="Month_Button" data-role="button" class="ui-btn-active">Month</a>
+				</div>
+				<script type="text/javascript">
+					$("#Month_Button").click(function(){
+						updateSalesOpportunityDeliveryChartToMonthly("opportunity_delivery_chart");
+						updateSalesOpportunityDeliveryTableToMonthly("opportunity_delivery_table");
+						updateOpportunityPipelineChartToMonthly("opportunity_chart");
+						updateOpportunityPipelineTableToMonthly("opportunity_table", "fab_ratio_amount", "fab_ratio_count");
+						$('#Week_Button').removeClass('ui-btn-active');
+						$('#Month_Button').addClass('ui-btn-active');
+						$('#Yesterday_Button').removeClass('ui-btn-active');
+				        return true; 
+				    });
+					$("#Week_Button").click(function(){
+						updateSalesOpportunityDeliveryChartToWeekly("opportunity_delivery_chart");
+						updateSalesOpportunityDeliveryTableToWeekly("opportunity_delivery_table");
+						updateOpportunityPipelineChartToWeekly("opportunity_chart");
+						updateOpportunityPipelineTableToWeekly("opportunity_table", "fab_ratio_amount", "fab_ratio_count");
+						$('#Week_Button').addClass('ui-btn-active');
+						$('#Month_Button').removeClass('ui-btn-active');
+						$('#Yesterday_Button').removeClass('ui-btn-active');
+				        return true; 
+				    });
+					$("#Yesterday_Button").click(function(){
+						updateSalesOpportunityDeliveryChartToYesterday("opportunity_delivery_chart");
+						updateSalesOpportunityDeliveryTableToYesterday("opportunity_delivery_table");
+						updateOpportunityPipelineChartToYesterday("opportunity_chart");
+						updateOpportunityPipelineTableToYesterday("opportunity_table", "fab_ratio_amount", "fab_ratio_count");						
+						$('#Week_Button').removeClass('ui-btn-active');
+						$('#Month_Button').removeClass('ui-btn-active');
+						$('#Yesterday_Button').addClass('ui-btn-active');
+				        return true; 
+				    });
+				</script>
+				<div class="ui-grid-a">
+					<div class="ui-block-a" id="opportunity_header"></div>
+					<div class="ui-block-b" id="opportunity_delivery_header"></div>
+				</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a" id="opportunity_chart"></div>
+					<div class="ui-block-b" id="opportunity_delivery_chart"></div>
+				</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a" id="opportunity_table"></div>
+					<div class="ui-block-b" id="opportunity_delivery_table"></div>
+				</div>
+				<div class="spacer" id="top_opportunities_spacer" style="font-size: 0; height: 20px; line-height: 0;">&nbsp;</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a">Pipeline Top Opportunities</div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="top_opportunities"></div>
+				</div>
+				<div class="spacer" id="top_opportunities_spacer" style="font-size: 0; height: 20px; line-height: 0;">&nbsp;</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a">FAB Ratios (New / Won)</div>
+					<div class="ui-block-b" id="opportunity_delivery_header">&nbsp;</div>
+				</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a" id="fab_ratio_amount"></div>
+					<div class="ui-block-b" id="fab_ratio_count"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="auditdays_notes">
+					<p class="notes">
+						Notes:
+						<ol class="notes">
+							<li>Based on opportunities with <i>Business</i> field equals Australia (i.e MS + Food; Product Services excluded).</li>
+							<li>Amounts based on field <i>1st Year New Business Revenue</i>.</li>
+							<li>The total amount for each stage of the <b>Opportunity Pipeline</b> is calculated as the total amount of opportunities moved to that stage during the period under analysis (either Month, Week, Yesterday).  As such the same opportunity can be accounted into multiple stages.  For example in the current month an opportunity can be created, then moved to <i>Proposal Sent</i> and finally <i>Won</i>.</li>
+							<li><b>Opportunities Won to Proposed Delivery</b> based on opportunity field <i>Proposed Delivery Date</i>.</li>
+							<li><b>FAB Ratio</b> is calculated as ratio between <i>New</i> and <i>Won</i> opportunities.  Two fab ratios are calculated respectively for total opportunities amount ($) and total opportunities count (#)</li>
+						</ol>
+					</p>
+					</div>
+				</div>		
+			</div>
+			<!--  
+			<div data-role="collapsible" class="wrapper"  id="net_opportunity_container">
+				<h1>Net Opportunities - MS &amp; Food</h1>
+				<div data-role="controlgroup" data-type="horizontal">
+					<a id="MS_Net_Opportunity_Button" data-role="button" >MS</a>
+					<a id="Food_Net_Opportunity_Button" data-role="button">Food</a>
+					<a id="Both_Net_Opportunity_Button" data-role="button" class="ui-btn-active">MS+Food</a>
+				</div>
+				<script type="text/javascript">
+					$("#MS_Net_Opportunity_Button").click(function(){
+						updateNetOpportunitiesToMs();
+						$('#Food_Net_Opportunity_Button').removeClass('ui-btn-active');
+						$('#MS_Net_Opportunity_Button').addClass('ui-btn-active');
+						$('#Both_Net_Opportunity_Button').removeClass('ui-btn-active');
+				        return true; 
+				    });
+					$("#Food_Net_Opportunity_Button").click(function(){
+						updateNetOpportunitiesToFood();
+						$('#Food_Net_Opportunity_Button').addClass('ui-btn-active');
+						$('#MS_Net_Opportunity_Button').removeClass('ui-btn-active');
+						$('#Both_Net_Opportunity_Button').removeClass('ui-btn-active');
+				        return true; 
+				    });
+					$("#Both_Net_Opportunity_Button").click(function(){
+						updateNetOpportunitiesToBoth();
+						$('#Food_Net_Opportunity_Button').removeClass('ui-btn-active');
+						$('#MS_Net_Opportunity_Button').removeClass('ui-btn-active');
+						$('#Both_Net_Opportunity_Button').addClass('ui-btn-active');
+				        return true; 
+				    });
+				</script>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="net_opportunity_header"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="net_opportunity_chart"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-b" id="net_opportunity_table"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="net_opportunity_churn_table"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="auditdays_notes">
+					<p class="notes">
+						Notes:
+						<ol class="notes" type="1">
+							<li><i>Lost Revenues (Audits)</i> - 12 months lost revenues from Work Item cancelled for the following reasons: 
+								<ul class="notes" type="1">
+									<li>Linked to a de-registered sites with <i>De-registered Type</i> equals 'Client Initiated' or 'SAI Initiated' and <i>De-registered Reason</i> not like 'Correction of customer data','Customer consolidation of licences' or 'Other – no loss of revenue'</li>
+									<li><i>Cancellation Reason</i> equals 'De-registered Site Certification Standard status', 'Concluded Site Certification Standard status', 'SAI did not win re-tender', 'New client not wishing to go ahead with S1 and S2', 'Financial difficulties' or 'Client complaint of service and is leaving SAI'</li>
+								</ul>
+								Recognised when the work Item is cancelled
+							</li>
+							<li><i>Lost Revenues (Fees)</i> - Annual fees lost from de-registration with <i>De-registered Type</i> equals Client Initiated or SAI Initiated and <i>De-registered Reason</i> not like 'Correction of customer data','Customer consolidation of licences' or 'Other – no loss of revenue'</li>
+								Recognised when the site certificate standard is de-registered. <b>This might not happen in the same period as the cancellation of the relative work items.</b>
+							</li>
+							<li><i>Shrinkage (Frequency)</i> - Work Items cancelled with Cancellation Reason 'Lifecycle Frequency Decrease'.  These represents shrinkage from reduction in auditing frequency</li>
+							<li><i>Shrinkage (Duration)</i> - Net change of work item required duration.</li>
+							<li><i>Net Amount</i> defined as: New Business (Audits) + New Business (Fees) - Lost Revenues (Audits) - Lost Revenues (Fees) - Shrinkage (Frequency) - Shrinkage (Duration)</li>
+							<li><i>Churn Ratio</i> defined as: Lost Revenues (Audits) / Previous f.y. Audit Revenue</li>
+							<li><i>Shrinkage Ratio</i> defined as: (Shrinkage (Frequency) + Shrinkage (Duration)) / Previous f.y. Audit Revenue</li>
+						</ol>
+					</p>
+					</div>
+				</div>
+			</div>
+			-->
+			<!--  <div data-role="collapsible" class="wrapper">
+				<h1>Training</h1>-->
+				<div data-role="collapsible" class="wrapper" id="training_public_container">
+					<h2>Training - Face To Face</h2>
+					<div data-role="controlgroup" data-type="horizontal">
+						<a id="RunningTotals_Public_Button" data-role="button" class="ui-btn-active">Running Totals</a>
+						<a id="PeriodTotals_Public_Button" data-role="button">Period Totals</a>
+					</div>
+					<script type="text/javascript">
+						$("#RunningTotals_Public_Button").click(function(){
+							updateTISPublicYearlyToRunningTotals("tis_public_yearly_chart_header", "tis_public_yearly_table_header", "tis_public_yearly_chart", "tis_public_yearly_table");
+							$('#PeriodTotals_Public_Button').removeClass('ui-btn-active');
+							$('#RunningTotals_Public_Button').addClass('ui-btn-active');
+					        return true; 
+					    });
+						$("#PeriodTotals_Public_Button").click(function(){
+							updateTISPublicYearlyToPeriodTotals("tis_public_yearly_chart_header", "tis_public_yearly_table_header", "tis_public_yearly_chart", "tis_public_yearly_table");
+							$('#PeriodTotals_Public_Button').addClass('ui-btn-active');
+							$('#RunningTotals_Public_Button').removeClass('ui-btn-active');
+					        return true; 
+					    });
+					</script>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" id="tis_public_yearly_chart_header"></div>
+						<div class="ui-block-b" style="float:right; width:450px" id="tis_public_yearly_table_header"></div>
+					</div>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" id="tis_public_yearly_chart"></div>
+						<div class="ui-block-b" style="float:right; width:450px" id="tis_public_yearly_table"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="auditdays_notes">
+						<p class="notes">
+							Notes:
+							<ol class="notes">
+								<li>Revenues recognition methodology: <a href="http://ourgateway.assurance.saiglobal.com/reference/australia/Opex/TIS%20Revenue%20Recognition.pdf" target="blank"><i>TIS Revenue Recognition</i></a> available on GBP</li>
+							</ol>
+						</p>
+						</div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_public_monthly_chart_header"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_public_monthly_chart"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_public_monthly_table"></div>
+					</div>
+				</div>
+				
+				<div data-role="collapsible" class="wrapper" id="training_elearning_container">
+					<h2>Training - eLearning</h2>
+					<div data-role="controlgroup" data-type="horizontal">
+						<a id="RunningTotals_elearning_Button" data-role="button" class="ui-btn-active">Running Totals</a>
+						<a id="PeriodTotals_elearning_Button" data-role="button">Period Totals</a>
+					</div>
+					<script type="text/javascript">
+						$("#RunningTotals_elearning_Button").click(function(){
+							updateTISelearningYearlyToRunningTotals("tis_elearning_yearly_chart_header", "tis_elearning_yearly_table_header", "tis_elearning_yearly_chart", "tis_elearning_yearly_table");
+							$('#PeriodTotals_elearning_Button').removeClass('ui-btn-active');
+							$('#RunningTotals_elearning_Button').addClass('ui-btn-active');
+					        return true; 
+					    });
+						$("#PeriodTotals_elearning_Button").click(function(){
+							updateTISelearningYearlyToPeriodTotals("tis_elearning_yearly_chart_header", "tis_elearning_yearly_table_header", "tis_elearning_yearly_chart", "tis_elearning_yearly_table");
+							$('#PeriodTotals_elearning_Button').addClass('ui-btn-active');
+							$('#RunningTotals_elearning_Button').removeClass('ui-btn-active');
+					        return true; 
+					    });
+					</script>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" id="tis_elearning_yearly_chart_header"></div>
+						<div class="ui-block-b" style="float:right; width:450px" id="tis_elearning_yearly_table_header"></div>
+					</div>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" id="tis_elearning_yearly_chart"></div>
+						<div class="ui-block-b" style="float:right; width:450px" id="tis_elearning_yearly_table"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_elearning_monthly_chart_header"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_elearning_monthly_chart"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_elearning_monthly_table"></div>
+					</div>
+				</div>
+				
+				<div data-role="collapsible" class="wrapper" id="training_inhouse_container">
+					<h2>Training - In House</h2>
+					<div data-role="controlgroup" data-type="horizontal">
+						<a id="RunningTotals_inhouse_Button" data-role="button" class="ui-btn-active">Running Totals</a>
+						<a id="PeriodTotals_inhouse_Button" data-role="button">Period Totals</a>
+					</div>
+					<script type="text/javascript">
+						$("#RunningTotals_inhouse_Button").click(function(){
+							updateTISInHouseToRunningTotals();
+							$('#PeriodTotals_inhouse_Button').removeClass('ui-btn-active');
+							$('#RunningTotals_inhouse_Button').addClass('ui-btn-active');
+					        return true; 
+					    });
+						$("#PeriodTotals_inhouse_Button").click(function(){
+							updateTISInHouseToPeriodTotals();
+							$('#PeriodTotals_inhouse_Button').addClass('ui-btn-active');
+							$('#RunningTotals_inhouse_Button').removeClass('ui-btn-active');
+					        return true; 
+					    });
+					</script>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" id="tis_inhouse_chart_header"></div>
+						<div class="ui-block-b" style="float:right; width:450px" id="tis_inhouse_table_header"></div>
+					</div>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" id="tis_inhouse_chart"></div>
+						<div class="ui-block-b" style="float:right; width:450px" id="tis_inhouse_table"></div>
+					</div>
+				</div>
+			<!-- </div> -->
+		</div>
+		<div data-role="footer">
+	    	<h1>SAI Global</h1>
+		</div>
+	</div> 
+	</body>
+</html>

@@ -1,0 +1,40 @@
+<Context>
+	<Resource name="jdbc/compass"
+		auth="Container"
+		type="javax.sql.DataSource"
+		username="luca"
+		password="s7nsh8n3"
+		driverClassName="com.mysql.jdbc.Driver"
+		url="jdbc:mysql://analytics.assurance.saiglobal.com:3306/salesforce"
+		maxActive="50"
+		maxIdle="10"
+		testOnBorrow="true"
+		validationQuery="select 1"
+		validationInterval="3599000"/>
+	
+	<Resource name="jdbc/training"
+		auth="Container"
+		type="javax.sql.DataSource"
+		username="luca"
+		password="s7nsh8n3"
+		driverClassName="com.mysql.jdbc.Driver"
+		url="jdbc:mysql://analytics.assurance.saiglobal.com:3306/training"
+		maxActive="50"
+		maxIdle="10"
+		testOnBorrow="true"
+		validationQuery="select 1"
+		validationInterval="3599000"/>
+	
+	<Resource name="jdbc/analytics"
+		auth="Container"
+		type="javax.sql.DataSource"
+		username="luca"
+		password="s7nsh8n3"
+		driverClassName="com.mysql.jdbc.Driver"
+		url="jdbc:mysql://analytics.assurance.saiglobal.com:3306/analytics"
+		maxActive="10"
+		maxIdle="5"
+		testOnBorrow="true"
+		validationQuery="select 1"
+		validationInterval="3599000"/>
+</Context>

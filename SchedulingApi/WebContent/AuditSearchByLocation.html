@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Audit Search by Location</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="javascript/jquery.tokeninput.js"></script>
+<script type="text/javascript" src="javascript/auditsearchbylocation.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.css">
+<link rel="stylesheet" type="text/css" href="styles/token-input.css" />
+<link rel="stylesheet" type="text/css" href="styles/token-input-auditsearchbylocation.css" />
+<link rel="stylesheet" type="text/css" href="styles/auditsearchbylocation.css" />
+
+<!-- Google Visualisation API -->
+<script
+	src="https://maps.googleapis.com/maps/api/js?libraries=geometry,visualization&sensor=true"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+	google.load("visualization", "1", {
+		packages : [ "table" ]
+	});
+</script>
+</head>
+
+<body onload="focusInput()">
+	<div data-role="page" id="pageone">
+		<div data-role="header" id="header">
+			<h1>Audits by Location</h1>
+		</div>
+		<div class="ui-grid-solo">
+			<input type="text" id="parameters_input" class="input" name="parameters_input" />
+		</div>
+		<div data-role="main" class="ui-content">
+			<div data-role="collapsible" class="wrapper to_be_expanded" data-collapsed="false">
+				<h1 id="audits_summary_header">Scheduled Audits Results</h1>
+				<div class="ui-grid-solo">
+					<div class="ui-grid-a">
+						<p class="notes">
+							Notes:
+							<ol class="notes">
+								<li>Search audits by location name or postcode.</li>
+								<li>Default period: "Current month".  Type <i>Within X month</i> to extend period.</li>
+								<li>Default radius from postcode: 10 Km.  Type <i>Within X Km</i> to extend radius.</li>
+							</ol>
+						</p>
+					</div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-grid-a" id="audits_details"></div>
+				</div>
+				
+			</div>
+		</div>
+	</div>			
+</body>
+</html>

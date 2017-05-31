@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ARG Process</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="javascript/jquery.tokeninput.js"></script>
+<script type="text/javascript" src="javascript/argprocess.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.css">
+<link rel="stylesheet" type="text/css" href="styles/token-input.css" />
+<link rel="stylesheet" type="text/css" href="styles/token-input-process.css" />
+<link rel="stylesheet" type="text/css" href="styles/argprocess.css" />
+
+<!-- Google Visualisation API -->
+<script
+	src="https://maps.googleapis.com/maps/api/js?libraries=geometry,visualization&sensor=true"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+	google.load("visualization", "1", {
+		packages : [ "corechart", "table", "orgchart" ]
+	});
+</script>
+</head>
+
+<body>
+	<div data-role="page" id="pageone">
+		<div data-role="header" id="header">
+			<h1>ARG Process Monitor</h1>
+		</div>
+		<div class="ui-grid-solo">
+			<input type="text" id="parameters_input" class="input" name="parameters_input" />
+		</div>
+
+		<div data-role="main" class="ui-content">
+			<div data-role="collapsible" class="wrapper to_be_expanded" data-collapsed="false">
+				<h1 id="process_summary_header">Process Summary</h1>
+				<div class="ui-grid-solo">
+					<div data-role="controlgroup" data-type="horizontal">
+						<a id="Performance_Button" data-role="button" class="ui-btn-active" style="display: none;">Performance</a>
+						<a id="SLA_Button" data-role="button" style="display: none;">Service Level</a>
+					</div>
+					<script type="text/javascript">
+					$("#Performance_Button").click(function(){
+						$('#SLA_Button').removeClass('ui-btn-active');
+						$('#Performance_Button').addClass('ui-btn-active');
+						updateDisplay();
+				        return true; 
+				    });
+					$("#SLA_Button").click(function(){
+						$('#SLA_Button').addClass('ui-btn-active');
+						$('#Performance_Button').removeClass('ui-btn-active');
+						updateDisplay();
+				        return true; 
+				    });
+					</script>
+				</div>
+				<div class="ui-grid-solo">
+					<div id="process_flowchart_container"></div>
+				</div>
+				
+				
+				<div class="ui-grid-solo" id="process_summary_container">
+					<div style="display: none;" id="process_summary"></div>
+					<div style="display: none;" id="process_summary_all_sla"></div>
+					<div style="display: inline-block;" id="process_summary_queues"></div>
+					<div style="display: inline-block;" id="process_summary_performances"></div>
+					<div style="display: none;" id="process_summary_sla"></div>
+				</div>
+			</div>
+		</div>
+  
+		<div data-role="main" class="ui-content">
+			<div data-role="collapsible" class="wrapper to_be_expanded" data-collapsed="false">
+				<h1 id="process_details_header">Process Details</h1>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a">
+						<ul class="tabs" id="tab_links"></ul>
+					</div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="process_details_container"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+</body>
+</html>

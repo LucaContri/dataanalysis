@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Audit Days Summary</title>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <style type="text/css">
+
+svg {
+  width: 960px;
+  height: 500px;
+  border: solid 1px #ccc;
+  font: 10px sans-serif;
+  shape-rendering: crispEdges;
+}
+
+.legend text {
+  padding: 5px;
+  font: 14px sans-serif;
+  background: yellow;
+  box-shadow: 2px 2px 1px #888;
+}
+
+.timer text {
+  padding: 5px;
+  font: 14px sans-serif;
+  background: yellow;
+  box-shadow: 2px 2px 1px #888;
+}
+
+    </style>
+  </head>
+  <body>
+  	<h1>Audit Days Summary</h1>
+  	<p>MS + Food</p>
+    <script type="text/javascript">
+
+    
+var w = 960,
+    h = 500,
+    legendDim = {width: 200},
+    margin = {top:20, right:legendDim.width+30, bottom:30, left:20},
+    x = d3.scale.ordinal().rangeRoundBands([0, w - margin.left - margin.right]),
+    y = d3.scale.linear().range([0, h - margin.top - margin.bottom]),
+    //z = d3.scale.ordinal().range(["lightpink", "darkgray", "lightblue"]),
+    parse = d3.time.format("%m/%Y").parse,
+    format = d3.time.format("%b"),
+    visual = {delay: 1000};
+
+var svg = d3.select("body").append("svg:svg")
+    .attr("width", w)
+    .attr("height", h)
+  .append("svg:g")
+    .attr("transform", "translate(" + margin.left + "," + (h - margin.bottom) + ")");
+
+d3.json("auditDaysSummary?stacked=true", function(error, json) {
+  if (error) return console.warn(error);
+  // Transpose the data into layers by status.
+  var z = d3.scale.ordinal().range(json.colors);
+
+  var statuses = d3.layout.stack()(json.header.y.map(function(dat,i){
+      return json.instances[0].data.map(function(d){
+          return {x: new Date(Date.parse(d[0])), y: d[i+1] };
+          //return {x: d.Period, y: +d[status]};
+      })
+  }));
+  
+  // Compute the x-domain (by date) and y-domain (by top).
+  x.domain(statuses[0].map(function(d) { return d.x; }));
+  y.domain([0, 500+d3.max(statuses[statuses.length - 1], function(d) { return d.y0 + d.y; })]);
+
+  // Add a group for each status.
+  var status = svg.selectAll("g.status")
+      .data(statuses)
+    .enter().append("svg:g")
+      .attr("class", "status")
+      .style("fill", function(d, i) { return z(i); })
+      .style("stroke", function(d, i) { return d3.rgb(z(i)).darker(); });
+
+  // Add a rect for each date.
+  var rect = status.selectAll("rect")
+      .data(Object)
+    .enter().append("svg:rect")
+      .attr("x", function(d) { return x(d.x); })
+      .attr("y", function(d) { return -y(d.y0) - y(d.y); })
+      .attr("height", function(d) { return y(d.y); })
+      .attr("width", x.rangeBand());
+
+  // Add a label per date.
+  var label = svg.selectAll("text")
+      .data(x.domain())
+    .enter().append("svg:text")
+      .attr("x", function(d) { return x(d) + x.rangeBand() / 2; })
+      .attr("y", 6)
+      .attr("text-anchor", "middle")
+      .attr("dy", ".71em")
+      .text(format);
+
+  // Add y-axis rules.
+  var rule = svg.selectAll("g.rule")
+      .data(y.ticks(5))
+    .enter().append("svg:g")
+      .attr("class", "rule")
+      .attr("transform", function(d) { return "translate(0," + -y(d) + ")"; });
+
+  rule.append("svg:line")
+      .attr("x2", w - margin.right - margin.left)
+      .style("stroke", function(d) { return d ? "#fff" : "#000"; })
+      .style("stroke-opacity", function(d) { return d ? .7 : null; });
+
+  rule.append("svg:text")
+      .attr("x", w - margin.right - margin.left + 6)
+      .attr("dy", ".35em")
+      .text(d3.format(",d"));
+  
+  var legend = svg.selectAll(".legend")
+	  .data(json.header.y)
+	.enter().append("svg:g")
+	  .attr("class", "legend");
+      
+  legend.append("text")
+      .text(function(d,i) { return d  })
+      .attr("x", w - legendDim.width + 30)
+      .attr("y", function(d,i) { return -margin.bottom +15 - (i+1)*50  })
+
+  legend.append("rect")
+	  .attr("x", w - legendDim.width)
+	  .attr("y", function(d,i) { return -margin.bottom - (i+1)*50  })
+	  .attr("width", 20)
+	  .attr("height", 20)
+	  .style("fill", function(d,i) { return json.colors[i]  });
+
+  var timer = svg.append("svg:g")
+	  .attr("class", "timer")
+	  .append("text")
+	  .text(json.instances[0].date)
+	  .attr("x", w/2-50)
+	  .attr("y", -h +margin.top + 30 );
+	  
+  json.instances.forEach(function(instance, index) {
+	  var statuses = d3.layout.stack()(json.header.y.map(function(dat,i){
+	      return instance.data.map(function(d){
+	          return {x: new Date(Date.parse(d[0])), y: d[i+1] };
+	          //return {x: d.Period, y: +d[status]};
+	      })
+	  }));
+	  
+	  // Compute the x-domain (by date) and y-domain (by top).
+	  //x.domain(statuses[0].map(function(d) { return d.x; }));
+	  //y.domain([0, d3.max(statuses[statuses.length - 1], function(d) { return d.y0 + d.y; })]);
+
+	  // Add a group for each status.
+	  var status = svg.selectAll("g.status")
+	      .data(statuses);
+	    //.enter().append("svg:g")
+	      //.attr("class", "status")
+	      //.style("fill", function(d, i) { return z(i); })
+	      //.style("stroke", function(d, i) { return d3.rgb(z(i)).darker(); });
+
+	  // Add a rect for each date.
+	  var rect = status.selectAll("rect")
+	      .data(Object)
+	    .transition()
+		  .duration(visual.delay)
+		  .ease("quad")
+		  .delay(function(d, i) { return index * visual.delay; })
+	      .attr("x", function(d) { return x(d.x); })
+	      .attr("y", function(d) { return -y(d.y0) - y(d.y); })
+	      .attr("height", function(d) { return y(d.y); });
+	  
+	  var timer = svg.selectAll(".timer").select("text")
+	  	.transition()
+		.duration(visual.delay)
+		.ease("quad")
+		.delay(index * visual.delay)
+		.text(instance.date);
+	  
+    });
+  
+});
+
+    </script>
+  </body>
+</html>

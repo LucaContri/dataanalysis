@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+	<head>
+  		<title>Daily Statistics</title>
+  		<!-- Collapsable Sections -->
+  		<meta name="viewport" content="width=device-width, initial-scale=1">
+  		<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
+		<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+		<script src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+  		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.css">
+		
+  		<!-- Google Visualisation API -->
+		<script src="https://maps.googleapis.com/maps/api/js?libraries=geometry,visualization&sensor=true"></script>
+		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	    <script type="text/javascript">
+	      google.load("visualization", "1", {packages:["corechart", "table", "gauge"]});
+	    </script>
+	    
+	    <!-- Local -->
+		<link rel="stylesheet" type="text/css" href="styles/dailyStats.css" />
+		<script type="text/javascript" src="javascript/visualisation.v2.js"></script>
+		
+		<script>
+	      	google.setOnLoadCallback(updateAllVisualisationsForPrinting);
+	    </script>
+	</head>
+	<body>
+	<div data-role="page" id="pageone">
+		<div><img src="http://www.saiglobal.com/Templates/www,sai-global,new/images/sai_logo.gif" alt="SAI Global" style="border-width:0px;"></div>
+		<!-- <div id="log"></div> -->
+		<div data-role="header">
+			<h1>Daily Statistics</h1>
+		</div>
+		<div data-role="main" class="ui-content">
+			<div data-role="collapsible" class="wrapper to_be_expanded" id="audit_days_container">
+				<h1>Audit Days - MS &amp; Food</h1>
+				<div class="spacer" style="font-size: 0; height: 50px; line-height: 0;">&nbsp;</div>
+				<div class="ui-grid-solo" style="text-align:center;">
+					<div class="ui-block-a" id="auditdays_chart_header"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="auditdays_chart"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="auditdays_table_header"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="auditdays_table"></div>
+				</div>
+				<div class="spacer" style="font-size: 0; height: 50px; line-height: 0;">&nbsp;</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a" id="auditdays_table_changes_daily_header"></div>
+					<div class="ui-block-b" id="auditdays_table_changes_monthly_header"></div>
+				</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a" id="auditdays_table_changes_daily"></div>
+					<div class="ui-block-b" id="auditdays_table_changes_monthly"></div>
+				</div>
+				
+				<div id="auditdays_table_changes_weekly" style="display: none;"></div>
+				<div id="auditdays_table_changes_weekly_header" style="display: none;"></div>
+				
+				<div class="spacer" style="font-size: 0; height: 50px; line-height: 0;">&nbsp;</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="auditdays_notes">
+					<p class="notes">
+						Notes:
+						<ol class="notes" type="1">
+						<li>Scheduled - Work Item statuses 'Schedule' and 'Scheduled Offered'</li>
+						<li>Open - Work Item statuses 'Open' and 'Service Change'</li>
+						<li>Confirmed - Work Items in all other statuses</li>
+						<li>Forecast - Calculated daily based on historical available days changes.  For details please refer to: <a href="http://ourgateway.assurance.saiglobal.com/reference/australia/Opex/Audit%20Days%20Forecast.pdf" target="blank"><i>Audit Days Forecast Methodology</i></a>  available on GBP</li>
+						<li>Confirmed minus Budget ($) - Confirmed minus Budget days @ $1,750 as requested by Joe Kiernicki</li>
+						</ol>
+					</p>
+					</div>
+				</div>
+			</div>
+			<div class="spacer" style="font-size: 0; height: 110px; line-height: 0;">&nbsp;</div>
+			<div data-role="collapsible" class="wrapper to_be_expanded" id="opportunity_container">
+				<h1>Opportunities - MS &amp; Food</h1>				
+				
+				<div data-role="collapsible" class="wrapper to_be_expanded">
+					<h2>Monthly Summary</h2>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" style="width: 70%" id="opportunity_header"></div>
+						<div class="ui-block-b" style="width: 30%">FAB Ratio $ (New / Won)</div>
+					</div>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" style="width: 70%" id="opportunity_chart"></div>
+						<div class="ui-block-b" style="width: 30%" id="fab_ratio_amount"></div>
+					</div>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" id="opportunity_table"></div>
+					</div>
+					<div class="spacer" style="font-size: 0; height: 50px; line-height: 0;">&nbsp;</div>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" style="width: 70%" id="opportunity_delivery_header"></div>
+						<div class="ui-block-b" style="width: 30%">FAB Ratio # (New / Won)</div>
+					</div>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" style="width: 70%" id="opportunity_delivery_chart"></div>
+						<div class="ui-block-b" style="width: 30%" id="fab_ratio_count">Fab Here</div>
+					</div>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" id="opportunity_delivery_table"></div>
+					</div>
+				</div>
+				<div class="spacer" style="font-size: 0; height: 50px; line-height: 0;">&nbsp;</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="auditdays_notes">
+					<p class="notes">
+						Notes:
+						<ol class="notes">
+							<li>Based on opportunities with <i>Business</i> field equals Australia (i.e MS + Food; Product Services excluded).</li>
+							<li>Amounts based on field <i>1st Year New Business Revenue</i>.</li>
+							<li>The total amount for each stage of the <b>Opportunity Pipeline</b> is calculated as the total amount of opportunities moved to that stage during the current month.  As such the same opportunity can be accounted into multiple stages.  For example in the current month an opportunity can be created, then moved to <i>Proposal Sent</i> and finally <i>Won</i>.</li>
+							<li><b>Opportunities Won to Proposed Delivery</b> based on opportunity field <i>Proposed Delivery Date</i>.</li>
+							<li><b>FAB Ratio</b> is calculated as ratio between <i>New</i> and <i>Won</i> opportunities.  Two fab ratios are calculated respectively for total opportunities amount ($) and total opportunities count (#)</li>
+						</ol>
+					</p>
+					</div>
+				</div>
+				
+				<div class="spacer" style="font-size: 0; height: 70px; line-height: 0;">&nbsp;</div>
+				<div data-role="collapsible" class="wrapper to_be_expanded">
+					<h2>Top Opportunities</h2>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="top_opportunities_header"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="top_opportunities"></div>
+					</div>
+				</div>
+				<div class="spacer" id="top_opportunities_spacer" style="font-size: 0; line-height: 0;">&nbsp;</div>
+						
+			</div>
+			<!--
+			<div data-role="collapsible" class="wrapper to_be_expanded"  id="net_opportunity_container">
+				<h1>Net Opportunities - MS &amp; Food</h1>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="net_opportunity_header"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="net_opportunity_chart"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-b" id="net_opportunity_table"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="net_opportunity_churn_header"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="net_opportunity_Churn_chart"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="auditdays_notes">
+						<p class="notes">
+							Notes:
+							<ol class="notes" type="1">
+								<li><i>Lost Revenues (Audits)</i> - 12 months lost revenues from Work Item cancelled for the following reasons: 
+									<ul class="notes" type="1">
+										<li>Linked to a de-registered sites with <i>De-registered Type</i> equals 'Client Initiated' or 'SAI Initiated' and <i>De-registered Reason</i> not like 'Correction of customer data','Customer consolidation of licences' or 'Other – no loss of revenue'</li>
+										<li><i>Cancellation Reason</i> equals 'De-registered Site Certification Standard status', 'Concluded Site Certification Standard status', 'SAI did not win re-tender', 'New client not wishing to go ahead with S1 and S2', 'Financial difficulties' or 'Client complaint of service and is leaving SAI'</li>
+									</ul>
+									Recognised when the work Item is cancelled
+								</li>
+								<li><i>Lost Revenues (Fees)</i> - Annual fees lost from de-registration with <i>De-registered Type</i> equals Client Initiated or SAI Initiated and <i>De-registered Reason</i> not like 'Correction of customer data','Customer consolidation of licences' or 'Other – no loss of revenue'</li>
+									Recognised when the site certificate standard is de-registered. <b>This might not happen in the same period as the cancellation of the relative work items.</b>
+								</li>
+								<li><i>Shrinkage (Frequency)</i> - Work Items cancelled with Cancellation Reason 'Lifecycle Frequency Decrease'.  These represents shrinkage from reduction in auditing frequency</li>
+								<li><i>Shrinkage (Duration)</i> - Net change of work item required duration.</li>
+								<li><i>Net Amount</i> defined as: New Business (Audits) + New Business (Fees) - Lost Revenues (Audits) - Lost Revenues (Fees) - Shrinkage (Frequency) - Shrinkage (Duration)</li>
+								<li><i>Churn Ratio</i> defined as: Lost Revenues (Audits) / Previous f.y. Audit Revenue</li>
+								<li><i>Shrinkage Ratio</i> defined as: (Shrinkage (Frequency) + Shrinkage (Duration)) / Previous f.y. Audit Revenue</li>
+							</ol>
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="spacer" style="font-size: 0; height: 300px; line-height: 0;">&nbsp;</div>
+			-->
+			<!--  <div data-role="collapsible" class="wrapper to_be_expanded">
+				<h1>Training</h1>-->
+				<div data-role="collapsible" class="wrapper to_be_expanded" id="training_public_container">
+					<h1>Training - Face To Face</h1>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_public_yearly_chart_header"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_public_yearly_chart"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_public_yearly_table_header"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_public_yearly_table"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="auditdays_notes">
+						<p class="notes">
+							Notes:
+							<ol class="notes">
+								<li>Revenues recognition methodology: <a href="http://ourgateway.assurance.saiglobal.com/reference/australia/Opex/TIS%20Revenue%20Recognition.pdf" target="blank"><i>TIS Revenue Recognition</i></a> available on GBP</li>
+							</ol>
+						</p>
+						</div>
+					</div>
+					<div class="spacer" style="font-size: 0; height:50px; line-height: 0;">&nbsp;</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_public_monthly_chart_header"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_public_monthly_chart"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_public_monthly_table" style="display: none;"></div>
+					</div>
+				</div>
+				<div class="spacer" style="font-size: 0; height: 70px; line-height: 0;">&nbsp;</div>
+				<div data-role="collapsible" class="wrapper to_be_expanded" id="training_elearning_container">
+					<h1>Training - eLearning</h1>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_elearning_yearly_chart_header"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_elearning_yearly_chart"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_elearning_yearly_table_header"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_elearning_yearly_table"></div>
+					</div>
+					<div class="spacer" style="font-size: 0; height:100px; line-height: 0;">&nbsp;</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_elearning_monthly_chart_header"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_elearning_monthly_chart"></div>
+					</div>
+					<div class="spacer" style="font-size: 0; height: 0px; line-height: 0;">&nbsp;</div> 
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_elearning_monthly_table" style="display: none;"></div>
+					</div>
+					
+				</div>
+				<div class="spacer" style="font-size: 0; height:110px; line-height: 0;">&nbsp;</div>
+				<div data-role="collapsible" class="wrapper to_be_expanded" id="training_inhouse_container">
+					<h1>In House</h1>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_inhouse_chart_header"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_inhouse_chart"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_inhouse_table_header"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="tis_inhouse_table"></div>
+					</div>
+				</div>
+			<!--</div>-->
+
+		</div>
+		<div data-role="footer">
+	    	<h1>SAI Global</h1>
+		</div>
+	</div> 
+	</body>
+</html>

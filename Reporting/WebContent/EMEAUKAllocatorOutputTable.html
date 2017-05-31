@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>EMEA UK Scheduling Output</title>
+	<meta charset="utf-8">
+	<!-- CSS -->
+    <link type="text/css" rel="stylesheet" href="./styles/EMEAUKAllocatorOutputTable.css?version=2" />
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.css">
+    <!-- Javascripts -->
+    <script type="text/javascript" src="./javascript/jquery-1.12.2.min.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+    <script type="text/javascript" src="./javascript/EMEAUKAllocatorOutputTable.js?version=4" ></script>
+</head>
+<body>
+<h1 id="title">Resource Allocator Output</h1>
+<h2 id="subtitle">Resource Allocator Output</h2>
+<table id="wiTable">
+  <tr class="header">
+  	<th colspan="1" ><input type="text" class="search" id="searchClient" onkeyup="filter()" placeholder="Client..."></th>
+    <th colspan="1" ><input type="text" class="search" id="searchWI" onkeyup="filter()" placeholder="WI..."></th>
+    <th colspan="1" ><input type="text" class="search" id="searchAuditType" onkeyup="filter()" placeholder="WI Type..."></th>
+    <th colspan="1" ><input type="text" class="search" id="searchStandard" onkeyup="filter()" placeholder="Standard..."></th>
+    <th colspan="2" ><input type="text" class="search" id="searchResource" onkeyup="filter()" placeholder="Resource.."></th>
+    <th colspan="2" ><input type="text" class="search" id="searchStartDate" onkeyup="filter()" placeholder="Start Date.."></th>
+    <th colspan="1"><img src="./images/delete.small.png" alt="Clear Filters" onclick="clearFilters()"></th> 
+  </tr>
+  <tr class="header">
+    <th>Client</th>
+    <th>WI</th>
+    <th>Audit Type</th>
+    <th>Standard</th>
+    <th>Resource</th>
+    <th>Work Type</th>
+    <th>Start Date</th>
+    <th>End Date</th>
+    <th>Notes</th>
+  </tr>
+  
+</table>
+</body>
+</html>

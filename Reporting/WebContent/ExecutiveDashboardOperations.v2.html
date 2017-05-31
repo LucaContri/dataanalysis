@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Executive Dashboard Operations</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="javascript/executiveDashboard.v2.js"></script>
+<link rel="stylesheet" type="text/css" href="styles/executiveDashboard.css" />
+
+<!-- Google Visualisation API -->
+<script
+	src="https://maps.googleapis.com/maps/api/js?libraries=geometry,visualization&sensor=true"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+	google.load("visualization", "1", {
+		packages : [ "corechart", "table"]
+	});
+</script>
+</head>
+
+<body>
+	<header>
+		<div id="title"><h1>Executive Dashboard</h1></div>
+		<div id="logo"><img src="./images/sai_logo.png" alt="SAIGlobal"/></div>
+	</header>
+	<section id="summary_container">
+		<div class="header_wrapper">
+			<div class="header_left">
+				<h2>Operations</h2>
+			</div>
+			<div class="header_right">
+				<label for="select_period">Period:&nbsp;</label>
+				<select id="select_period" name="select_period">
+				  <option value="01/01/2015">Jan 15</option>
+				  <option value="01/02/2015">Feb 15</option>
+				  <option value="01/03/2015">Mar 15</option>
+				  <option value="01/04/2015">Apr 15</option>
+				  <option value="01/05/2015">May 15</option>
+				  <option value="01/06/2015" selected="selected">Jun 15</option>
+				</select>
+			</div>
+		</div>
+		<div class="content" id="summary"></div>
+	</section>
+	
+	<aside id=summary_aside>
+		<div class="notes">
+			<p>
+				<b>Notes:</b>
+				<ol>
+					<li>Each <i>Metric Group</i> includes one or more metrics. Click on an individual cell for details.</li>
+					<li>The percentage represents the no. metrics in the metric group within SLA</li>
+					<li>Cell colors:
+						<ul>
+							<li>Red: less of 70% of metrics in the group are within SLA or at least 1 critical metric is red</li>
+							<li>Amber: 70% to 80% of metrics in the group are within SLA or at least 1 critical metric is amber</li>
+							<li>Green: more than 80% of metrics in the group are within SLA</li>
+						</ul> 
+					</li>
+				</ol>
+			</p>
+		</div>
+	</aside>
+
+	<section id="details_container">
+		<h3 id="details_header">&nbsp;</h3>
+		<div id="details"></div>
+	</section>
+	<aside id="details_notes">
+		<div class="notes">
+			<p>
+				<b>Notes:</b>
+				<ol id="details_notes_list">
+				</ol>
+			</p>
+		</div>
+	</aside>
+	<footer>
+		SAI Global - 2015
+	</footer>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/SFCore"/>
+	<classpathentry kind="lib" path="E:/saig/saig/SFSchedulingApi/lib/freemarker-2.3.20.jar"/>
+	<classpathentry kind="lib" path="E:/saig/saig/SFSchedulingApi/lib/gson-2.2.4.jar"/>
+	<classpathentry kind="lib" path="E:/saig/saig/SFSchedulingApi/lib/httpclient-4.3.1.jar"/>
+	<classpathentry kind="lib" path="E:/saig/saig/SFSchedulingApi/lib/javax.servlet-api-3.1.0.jar"/>
+	<classpathentry kind="lib" path="E:/saig/saig/SFSchedulingApi/lib/jaxb-api.jar"/>
+	<classpathentry kind="lib" path="E:/saig/saig/SFSchedulingApi/lib/jaxb-core.jar"/>
+	<classpathentry kind="lib" path="E:/saig/saig/SFSchedulingApi/lib/jaxb-impl.jar"/>
+	<classpathentry kind="lib" path="E:/saig/saig/SFSchedulingApi/lib/jaxb-jxc.jar"/>
+	<classpathentry kind="lib" path="E:/saig/saig/SFSchedulingApi/lib/jaxb-xjc.jar"/>
+	<classpathentry kind="lib" path="E:/saig/saig/SFSchedulingApi/lib/jetty-http-9.1.0.M0.jar"/>
+	<classpathentry kind="lib" path="E:/saig/saig/SFSchedulingApi/lib/jetty-io-9.1.0.M0.jar"/>
+	<classpathentry kind="lib" path="E:/saig/saig/SFSchedulingApi/lib/jetty-server-9.1.0.M0.jar"/>
+	<classpathentry kind="lib" path="E:/saig/saig/SFSchedulingApi/lib/jetty-util-9.1.0.M0.jar"/>
+	<classpathentry kind="lib" path="E:/saig/saig/SFSchedulingApi/lib/jetty-webapp-9.1.0.M0.jar"/>
+	<classpathentry kind="lib" path="E:/saig/saig/SFSchedulingApi/lib/junit-4.11.jar"/>
+	<classpathentry kind="lib" path="E:/saig/saig/SFSchedulingApi/lib/log4j-1.2.14.jar"/>
+	<classpathentry kind="lib" path="E:/saig/saig/SFSchedulingApi/lib/slf4j-api-1.7.5.jar"/>
+	<classpathentry kind="lib" path="E:/saig/saig/SFSchedulingApi/lib/slf4j-simple-1.7.5.jar"/>
+	<classpathentry kind="lib" path="E:/saig/saig/SFSchedulingApi/lib/spark-core-1.1.1.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

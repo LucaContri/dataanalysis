@@ -1,0 +1,334 @@
+{
+    "TR": {
+        "name": "Technical Review",
+        "link": "../argprocessdetails?process=TR"
+        "edges": [
+            {
+                "name": "Request TR",
+                "direction": "IN"
+            },
+            {
+                "name": "TR Approve",
+                "direction": "OUT"
+            },
+            {
+                "name": "TR Reject",
+                "direction": "OUT"
+            }
+        ],
+        "queues": [
+            {
+                "name": "Request TR",
+                "input": {
+                    "name": "Request TR",
+                    "direction": "IN"
+                },
+                "quantity": 0,
+                "quantityUnit": "ARG",
+                "agingAvg": 0,
+                "agingStdDev": 0,
+                "agingUnit": "Days"
+            }
+        ],
+        "performances": [
+            {
+                "name": "Request TR to Approve",
+                "input": {
+                    "name": "Request TR",
+                    "direction": "IN"
+                },
+                "output": {
+                    "name": "TR Approve",
+                    "direction": "OUT"
+                },
+                "quantity": 0,
+                "quantityUnit": "ARG",
+                "avg": 0,
+                "stdDev": 0,
+                "unit": "Days",
+                "groupType": "Period",
+                "KPI": 1,
+                "confidence": 0.99
+            },
+            {
+                "name": "Request TR to Reject",
+                "input": {
+                    "name": "Request TR",
+                    "direction": "IN"
+                },
+                "output": {
+                    "name": "TR Reject",
+                    "direction": "OUT"
+                },
+                "quantity": 0,
+                "quantityUnit": "ARG",
+                "avg": 0,
+                "stdDev": 0,
+                "unit": "Days",
+                "groupType": "Period",
+                "KPI": 1,
+                "confidence": 0.99
+            }
+        ]
+    },
+    "AUDITORS": {
+        "name": "Auditors",
+        "link": "../argprocessdetails?process=AUDITORS"
+        "edges": [
+            {
+                "name": "Audit Finished",
+                "direction": "IN"
+            },
+            {
+                "name": "ARG Submitted",
+                "direction": "OUT"
+            }
+        ],
+        "queues": [
+            {
+                "name": "WI Finished Not Submitted",
+                "input": {
+                    "name": "Audit Finished",
+                    "direction": "IN"
+                },
+                "quantity": 0,
+                "quantityUnit": "Work Item",
+                "agingAvg": 10,
+                "agingStdDev": 3,
+                "agingUnit": "Days"
+            },
+            {
+                "name": "WI Submitted No ARG",
+                "input": {
+                    "name": "WI Submitted",
+                    "direction": "IN"
+                },
+                "quantity": 0,
+                "quantityUnit": "Work Item",
+                "agingAvg": 0,
+                "agingStdDev": 0,
+                "agingUnit": "Days"
+            }
+        ],
+        "performances": [
+            {
+                "name": "Audit End to ARG Submitted",
+                "input": {
+                    "name": "Audit Finished",
+                    "direction": "IN"
+                },
+                "output": {
+                    "name": "ARG Submitted",
+                    "direction": "OUT"
+                },
+                "quantity": 0,
+                "quantityUnit": "Work Item",
+                "avg": 0,
+                "stdDev": 0,
+                "unit": "Days",
+                "groupType": "Period",
+                "KPI": 5,
+                "confidence": 0.99
+            }
+        ]
+    },
+    "ADMIN": {
+        "name": "Admin",
+        "link": "../argprocessdetails?process=ADMIN"
+        "edges": [
+            {
+                "name": "CA Approved",
+                "direction": "IN"
+            },
+            {
+                "name": "Admin Complete",
+                "direction": "OUT"
+            },
+            {
+                "name": "Admin On Hold",
+                "direction": "OUT"
+            }
+        ],
+        "queues": [
+            {
+                "name": "ARG To be assigned",
+                "input": {
+                    "name": "CA Approved",
+                    "direction": "IN"
+                },
+                "quantity": 0,
+                "quantityUnit": "ARG",
+                "agingAvg": 0,
+                "agingStdDev": 0,
+                "agingUnit": "Days"
+            },
+            {
+                "name": "ARG to be processed",
+                "input": {
+                    "name": "Admin Assigned",
+                    "direction": "IN"
+                },
+                "quantity": 0,
+                "quantityUnit": "ARG",
+                "agingAvg": 0,
+                "agingStdDev": 0,
+                "agingUnit": "Days"
+            }
+        ],
+        "performances": [
+            {
+                "name": "CA Approved to Complete",
+                "input": {
+                    "name": "CA Approved",
+                    "direction": "IN"
+                },
+                "output": {
+                    "name": "Admin Complete",
+                    "direction": "OUT"
+                },
+                "quantity": 0,
+                "quantityUnit": "ARG",
+                "avg": 0,
+                "stdDev": 0,
+                "unit": "Days",
+                "groupType": "Period",
+                "KPI": 2,
+                "confidence": 0.99
+            },
+            {
+                "name": "CA Approved to On Hold",
+                "input": {
+                    "name": "CA Approved",
+                    "direction": "IN"
+                },
+                "output": {
+                    "name": "Admin On Hold",
+                    "direction": "OUT"
+                },
+                "quantity": 0,
+                "quantityUnit": "ARG",
+                "avg": 0,
+                "stdDev": 0,
+                "unit": "Days",
+                "groupType": "Period",
+                "KPI": 2,
+                "confidence": 0.99
+            }
+        ]
+    },
+    "PRC": {
+        "name": "PRC",
+        "link": "../argprocessdetails?process=PRC"
+        "edges": [
+            {
+                "name": "ARG Submitted",
+                "direction": "IN"
+            },
+            {
+                "name": "ARG Re-Submitted",
+                "direction": "IN"
+            },
+            {
+                "name": "ARG From TR",
+                "direction": "IN"
+            },
+            {
+                "name": "CA Approved",
+                "direction": "OUT"
+            },
+            {
+                "name": "CA Rejected",
+                "direction": "OUT"
+            },
+            {
+                "name": "Request TR",
+                "direction": "OUT"
+            }
+        ],
+        "queues": [
+            {
+                "name": "ARG To be taken",
+                "input": {
+                    "name": "ARG Submitted",
+                    "direction": "IN"
+                },
+                "quantity": 0,
+                "quantityUnit": "ARG",
+                "agingAvg": 0,
+                "agingStdDev": 0,
+                "agingUnit": "Days"
+            },
+            {
+                "name": "ARG to be reviewed",
+                "input": {
+                    "name": "ARG Taken",
+                    "direction": "IN"
+                },
+                "quantity": 0,
+                "quantityUnit": "ARG",
+                "agingAvg": 0,
+                "agingStdDev": 0,
+                "agingUnit": "Days"
+            }
+        ],
+        "performances": [
+            {
+                "name": "ARG Submitted to CA Approved",
+                "input": {
+                    "name": "ARG Submitted",
+                    "direction": "IN"
+                },
+                "output": {
+                    "name": "CA Approved",
+                    "direction": "OUT"
+                },
+                "quantity": 0,
+                "quantityUnit": "ARG",
+                "avg": 0,
+                "stdDev": 0,
+                "unit": "Days",
+                "groupType": "Period",
+                "KPI": 2,
+                "confidence": 0.99
+            },
+            {
+                "name": "ARG Submitted to CA Approved (via Rejection)",
+                "input": {
+                    "name": "ARG Submitted",
+                    "direction": "IN"
+                },
+                "output": {
+                    "name": "CA Approved",
+                    "direction": "OUT"
+                },
+                "quantity": 0,
+                "quantityUnit": "ARG",
+                "avg": 0,
+                "stdDev": 0,
+                "unit": "Days",
+                "groupType": "Period",
+                "KPI": 2,
+                "confidence": 0.99
+            },
+            {
+                "name": "ARG Submitted to CA Approved (via TR)",
+                "input": {
+                    "name": "ARG Submitted",
+                    "direction": "IN"
+                },
+                "output": {
+                    "name": "CA Approved",
+                    "direction": "OUT"
+                },
+                "quantity": 0,
+                "quantityUnit": "ARG",
+                "avg": 0,
+                "stdDev": 0,
+                "unit": "Days",
+                "groupType": "Period",
+                "KPI": 2,
+                "confidence": 0.99
+            }
+        ]
+    }
+}

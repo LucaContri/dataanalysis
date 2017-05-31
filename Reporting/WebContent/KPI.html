@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+	<head>
+  		<title>Assurance Operational Metrics</title>
+  		<!-- Collapsable Sections -->
+  		<meta name="viewport" content="width=device-width, initial-scale=1">
+  		<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
+		<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+		<script src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+  		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.css">
+		
+  		<!-- Google Visualisation API -->
+		<script src="https://maps.googleapis.com/maps/api/js?libraries=geometry,visualization&sensor=true"></script>
+		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	    <script type="text/javascript">
+	      google.load("visualization", "1", {packages:["corechart", "table", "gauge"]});
+	    </script>
+	    
+	    <!-- Local -->
+		<link rel="stylesheet" type="text/css" href="styles/kpi.css" />
+		<script type="text/javascript" src="javascript/kpi.js"></script>
+		
+		<script>
+	      google.setOnLoadCallback(updateAllVisualisations);
+	    </script>
+
+	</head>
+	<body>
+	<div data-role="page" id="pageone">
+		<div data-role="header">
+			<h1>Assurance Operational Metrics</h1>
+		</div>
+		<div data-role="main" class="ui-content">
+			<div data-role="collapsible" class="wrapper" id="backoffice_container">
+				<h1>Back Office Operations</h1>
+				<div data-role="collapsible" class="wrapper" id="new_business_container">
+					<h2>New Business</h2>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a header" id="newBusiness_processing_header" ></div>
+					</div>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" id="newBusiness_processing_chart" ></div>
+						<div class="ui-block-b" id="newBusiness_processing_table" style="padding-top: 50px;"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a">
+							<p class="notes">
+							Notes:
+							<ol class="notes">
+								<li>Includes Opportunities with Business equals <i>Australia</i> or <i>Product Services</i>.  For <i>Australia</i>, processing days is calculated as no of working days from opportunity "Closed Won" to "Delivery Strategy Created".  For <i>Product Services</i>, processing days is calculated as no. of working days from "Negotiation/Review" to "Closed Won".  This is due to different opportunities business processes.</li>
+								<li><i># Opp Auto Finalised</i>: No of opportunities processed with delivery strategy automatically created.</li>
+								<li><i># Opp Manually Finalised</i>: No of opportunities processed with delivery strategy manually created.</li>
+								<li><i># Opp Not Finalised</i>: No of opportunities not yet processed.</li>
+								<li><i># Not Processed within 5 days</i>: Only "Auto Finalised" opportunities are included in this count.  For "Manually Finalised" opportunities we do not track history of when the opportunity was finalised.  There is currently a request to Compass support to have this done.</li>
+							</ol>
+							</p>
+						</div>
+					</div>
+				</div>
+				<div data-role="collapsible" class="wrapper" id="scheduling_container">
+					<h2>Scheduling</h2>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a header" id="scheduling_audit_chart_header"></div>
+					</div>
+					<div data-role="controlgroup" data-type="horizontal">
+						<a id="Audit_Food_Button" data-role="button" class="ui-btn-active">Food</a>
+						<a id="Audit_MS_Button" data-role="button">MS</a>
+						<a id="Audit_PS_Button" data-role="button">PS</a>
+					</div>
+					<script type="text/javascript">
+						$("#Audit_Food_Button").click(function(){
+							updateSchedulingConfirmedRatiosToFood();
+							$('#Audit_Food_Button').addClass('ui-btn-active');
+							$('#Audit_MS_Button').removeClass('ui-btn-active');
+							$('#Audit_PS_Button').removeClass('ui-btn-active');
+					        return true; 
+					    });
+						$("#Audit_MS_Button").click(function(){
+							updateSchedulingConfirmedRatiosToMS();
+							$('#Audit_Food_Button').removeClass('ui-btn-active');
+							$('#Audit_MS_Button').addClass('ui-btn-active');
+							$('#Audit_PS_Button').removeClass('ui-btn-active');
+					        return true; 
+					    });
+						$("#Audit_PS_Button").click(function(){
+							updateSchedulingConfirmedRatiosToPS();
+							$('#Audit_Food_Button').removeClass('ui-btn-active');
+							$('#Audit_MS_Button').removeClass('ui-btn-active');
+							$('#Audit_PS_Button').addClass('ui-btn-active');
+					        return true; 
+					    });
+					</script>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" id="scheduling_audit_chart"></div>
+						<div class="ui-block-b" style="padding-top: 50px;" id="scheduling_audit_table"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="auditdays_notes">
+							<p class="notes">
+							Notes:
+							<ol class="notes">
+								<li>Days Open = Work Item statuses 'Open' and 'Service Change' excluding the ones with Open Sub Status</li>
+								<li>Days Scheduled = Work Item statuses 'Schedule' and 'Scheduled Offered'</li>
+								<li>Days Confirmed = Work Items in all other statuses excluding Cancelled and Budget</li>
+								<li>Days Available = Days Open + Days Scheduled + Days Confirmed as above defined</li>
+								<li>Confirmed % = (Days Confirmed / Days Available)*100</li>
+								<li>Scheduled % = (Days Scheduled / Days Available)*100</li>
+								<li>Open % = (Days Open / Days Available)*100</li>
+							</ol>
+							</p>
+						</div>
+					</div>
+					<!--  
+					<div class="ui-grid-solo">
+						<div class="ui-block-a header" id="scheduling_target_chart_header" ></div>
+					</div>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" id="scheduling_target_chart" ></div>
+						<div class="ui-block-b" style="padding-top: 50px;" id="scheduling_target_table" ></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="auditdays_notes">
+							<p class="notes">
+							Notes:
+							<ol class="notes">
+								<li>It includes Management System and Food only. Filter based on <i>Revenue Ownership</i></li>
+								<li>On Target % = Percentage of work item scheduled on target month over total work items scheduled for the period</li>
+								<li>1 month to Target % = Percentage of work item scheduled 1 month before or after the target month over total work items scheduled for the period</li>
+								<li>2 month to Target % = Percentage of work item scheduled 2 months before or after the target month over total work items scheduled for the period</li>
+								<li>3+ month to Target % = Percentage of work item scheduled 3 or more months before or after the target month over total work items scheduled for the period</li>
+							</ol>
+							</p>
+						</div>
+					</div>
+					-->
+					<div class="ui-grid-solo">
+						<div class="ui-block-a header" id="scheduling_validated_header"></div>
+					</div>
+					<div data-role="controlgroup" data-type="horizontal">
+						<a id="Validated_Food_Button" data-role="button" class="ui-btn-active">Food</a>
+						<a id="Validated_MS_Button" data-role="button">MS</a>
+						<a id="Validated_PS_Button" data-role="button">PS</a>
+					</div>
+					<script type="text/javascript">
+						$("#Validated_Food_Button").click(function(){
+							updateSchedulingValidatedToFood();
+							$('#Validated_Food_Button').addClass('ui-btn-active');
+							$('#Validated_MS_Button').removeClass('ui-btn-active');
+							$('#Validated_PS_Button').removeClass('ui-btn-active');
+					        return true; 
+					    });
+						$("#Validated_MS_Button").click(function(){
+							updateSchedulingValidatedToMS();
+							$('#Validated_Food_Button').removeClass('ui-btn-active');
+							$('#Validated_MS_Button').addClass('ui-btn-active');
+							$('#Validated_PS_Button').removeClass('ui-btn-active');
+					        return true; 
+					    });
+						$("#Validated_PS_Button").click(function(){
+							updateSchedulingValidatedToPS();
+							$('#Validated_Food_Button').removeClass('ui-btn-active');
+							$('#Validated_MS_Button').removeClass('ui-btn-active');
+							$('#Validated_PS_Button').addClass('ui-btn-active');
+					        return true; 
+					    });
+					</script>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" id="scheduling_validated_chart"></div>
+						<div class="ui-block-b" id="scheduling_validated_table" style="padding-top: 50px;"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a">
+							<p class="notes">
+							Notes:
+							<ol class="notes">
+								<li><i>Period</i> in the chart and table above refers to the period when the site certification was created.</li>
+							</ol>
+							</p>
+						</div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a header" id="scheduling_auditors_header"></div>
+					</div>
+					<div data-role="controlgroup" data-type="horizontal">
+						<a id="Scheduling_Auditors_Food_Button" data-role="button" class="ui-btn-active">Food</a>
+						<a id="Scheduling_Auditors_MS_Button" data-role="button">MS</a>
+						<a id="Scheduling_Auditors_MS_PLUS_Food_Button" data-role="button">MS + Food</a>
+					</div>
+					<script type="text/javascript">
+						$("#Scheduling_Auditors_Food_Button").click(function(){
+							updateSchedulingAuditorsToFood();
+							$('#Scheduling_Auditors_Food_Button').addClass('ui-btn-active');
+							$('#Scheduling_Auditors_MS_Button').removeClass('ui-btn-active');
+							$('#Scheduling_Auditors_MS_PLUS_Food_Button').removeClass('ui-btn-active');
+					        return true; 
+					    });
+						$("#Scheduling_Auditors_MS_Button").click(function(){
+							updateSchedulingAuditorsToMS();
+							$('#Scheduling_Auditors_Food_Button').removeClass('ui-btn-active');
+							$('#Scheduling_Auditors_MS_Button').addClass('ui-btn-active');
+							$('#Scheduling_Auditors_MS_PLUS_Food_Button').removeClass('ui-btn-active');
+					        return true; 
+					    });
+						$("#Scheduling_Auditors_MS_PLUS_Food_Button").click(function(){
+							updateSchedulingAuditorsToMSPlusFood();
+							$('#Scheduling_Auditors_Food_Button').removeClass('ui-btn-active');
+							$('#Scheduling_Auditors_MS_Button').removeClass('ui-btn-active');
+							$('#Scheduling_Auditors_MS_PLUS_Food_Button').addClass('ui-btn-active');
+					        return true; 
+					    });
+					</script>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" id="scheduling_auditors_chart"></div>
+						<div class="ui-block-b" id="scheduling_auditors_table"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a">
+							<p class="notes">
+							Notes:
+							<ol class="notes">
+								<li>Employee Utilisation calculated as per <a href="http://ourgateway.assurance.saiglobal.com/reference/australia/Opex/Balanced%20Scorecard%20Metrics.pdf" target="blank"><i>Global Business Metrics Definition</i></a></li>
+							</ol>
+							</p>
+						</div>
+					</div>
+					
+					<!--  
+					<div class="ui-grid-a">
+						<div class="ui-block-a" id="admin_phone_chart_header" style="background-color:#66FFFF;">
+						Phone Metrics Table (last 6 month) by Queue (Scheduling TBD)
+						<ul>
+							<li>Calls offered</li>
+							<li>Calls answered</li>
+							<li>Abandoned calls</li>
+							<li>Average wait time</li>
+						</ul>
+						</div>
+					</div>
+					-->
+				</div>
+				<div data-role="collapsible" class="wrapper" id="admin_container">
+					<h2>Administration</h2>		
+					<div class="ui-grid-solo">
+						<div class="ui-block-a header" id="admin_arg_header"></div>
+					</div>
+					<div class="ui-grid-a">
+						<div class="ui-block-a " id="admin_arg_chart" ></div>
+						<div class="ui-block-b" id="admin_arg_table" style="padding-top: 50px;"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a">
+							<p class="notes">
+							Notes:
+							<ol class="notes">
+								<li>Reporting Approved ARG with Client Ownership = 'Australia' and not on hold</li>
+								<li>ARGs Turnaround Days: Average of working days (all days excluding Saturdays and Sundays) between ARG approved date and ARG completed date.  Only ARG completed are included in the average</li>
+							</ol>
+							</p>
+						</div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a header" id="admin_phone_header"></div>
+					</div>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" id="admin_phone_chart" ></div>
+						<div class="ui-block-b" id="admin_phone_table" style="padding-top: 50px;"></div>
+					</div>
+				</div>
+				<div data-role="collapsible" class="wrapper" id="prc_container">
+					<h2>PRC</h2>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a header" id="prc_arg_header"></div>
+					</div>
+					<div data-role="controlgroup" data-type="horizontal">
+						<a id="PRC_ARG_Food_Button" data-role="button" class="ui-btn-active">Food</a>
+						<a id="PRC_ARG_MS_Button" data-role="button">MS</a>
+						<a id="PRC_ARG_PS_Button" data-role="button">PS</a>
+					</div>
+					<script type="text/javascript">
+						$("#PRC_ARG_Food_Button").click(function(){
+							updatePRCARGToFood();
+							$('#PRC_ARG_Food_Button').addClass('ui-btn-active');
+							$('#PRC_ARG_MS_Button').removeClass('ui-btn-active');
+							$('#PRC_ARG_PS_Button').removeClass('ui-btn-active');
+					        return true; 
+					    });
+						$("#PRC_ARG_MS_Button").click(function(){
+							updatePRCARGToMS();
+							$('#PRC_ARG_Food_Button').removeClass('ui-btn-active');
+							$('#PRC_ARG_MS_Button').addClass('ui-btn-active');
+							$('#PRC_ARG_PS_Button').removeClass('ui-btn-active');
+					        return true; 
+					    });
+						$("#PRC_ARG_PS_Button").click(function(){
+							updatePRCARGToPS();
+							$('#PRC_ARG_Food_Button').removeClass('ui-btn-active');
+							$('#PRC_ARG_MS_Button').removeClass('ui-btn-active');
+							$('#PRC_ARG_PS_Button').addClass('ui-btn-active');
+					        return true; 
+					    });
+					</script>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" id="prc_arg_chart"></div>
+						<div class="ui-block-b" id="prc_arg_table" style="padding-top: 50px;"></div>
+					</div>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a" id="auditdays_notes">
+							<p class="notes">
+							Notes:
+							<ol class="notes">
+								<li>Reporting ARG with Client Ownership = 'Australia'</li>
+								<li>ARGs Turnaround Days: Average of working days (all days excluding Saturdays and Sundays) between ARG submit date and ARG first reviewed date.  Only ARG reviewed are included in the average</li>
+							</ol>
+							</p>
+						</div>
+					</div>
+					<!--  
+					<div class="ui-grid-a">
+						<div class="ui-block-a" id="prc_code_review_table_header" style="background-color:#66FFFF;">Code Review (from Sharepoint. Total Agility?)</div>
+					</div>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" id="prc_contract_review_table_header" style="background-color:#66FFFF;">Contract Review (from Sharepoint. Total Agility?)</div>
+					</div>
+					<div class="ui-grid-a">
+						<div class="ui-block-solo header" id="prc_auditor_mentoring_table_header"></div>
+					</div>
+					<div class="ui-grid-a">
+						<div class="ui-block-solo" id="prc_auditor_mentoring_table"></div>
+					</div>
+					-->
+				</div>
+				<div data-role="collapsible" class="wrapper" id="Finance_container">
+					<h2>Finance</h2>
+				</div>
+			</div>
+			<div data-role="collapsible" class="wrapper" id="delivery_container">
+				<h1>Delivery</h1>
+				<div data-role="collapsible" class="wrapper" id="auditors_container">
+					<h2>Auditors</h2>
+					<div class="ui-grid-solo">
+						<div class="ui-block-a header" id="auditors_arg_header"></div>
+					</div>
+					<div class="ui-grid-a">
+						<div class="ui-block-a" id="auditors_arg_chart"></div>
+						<div class="ui-block-b" id="auditors_arg_table" style="padding-top: 50px;"></div>
+					</div>
+				</div>
+				<div data-role="collapsible" class="wrapper" id="client_management_container">
+					<h2>Client Management</h2>
+				</div>
+		  </div>
+		  <div data-role="collapsible" class="wrapper" id="sales_container">
+				<h1>Sales</h1>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a header" id="sales_phone_header" ></div>
+				</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a" id="sales_phone_chart" ></div>
+					<div class="ui-block-b" id="sales_phone_table" style="padding-top: 50px;"></div>
+				</div>
+		  </div>
+		</div>
+		<div data-role="footer">
+	    	<h1>SAI Global</h1>
+		</div>
+	</div> 
+	</body>
+</html>

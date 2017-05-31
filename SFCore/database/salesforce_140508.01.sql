@@ -1,0 +1,39 @@
+#Training budgets
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'eLearning', 'budget', '2013-07-01',21242.57);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'eLearning', 'budget', '2013-08-01',16540.31);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'eLearning', 'budget', '2013-09-01',18293.98);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'eLearning', 'budget', '2013-10-01',24502.92);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'eLearning', 'budget', '2013-11-01',39531.36);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'eLearning', 'budget', '2013-12-01',16850.72);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'eLearning', 'budget', '2014-01-01',47395.17);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'eLearning', 'budget', '2014-02-01',31091.52);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'eLearning', 'budget', '2014-03-01',38288.78);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'eLearning', 'budget', '2014-04-01',9427.97);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'eLearning', 'budget', '2014-05-01',16381.81);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'eLearning', 'budget', '2014-06-01',21276.89);
+
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'public', 'budget', '2013-07-01',480057.90);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'public', 'budget', '2013-08-01',733856.62);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'public', 'budget', '2013-09-01',706338.00);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'public', 'budget', '2013-10-01',825986.62);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'public', 'budget', '2013-11-01',885691.32);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'public', 'budget', '2013-12-01',543567.80);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'public', 'budget', '2014-01-01',457153.00);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'public', 'budget', '2014-02-01',700576.62);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'public', 'budget', '2014-03-01',800046.62);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'public', 'budget', '2014-04-01',715852.90);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'public', 'budget', '2014-05-01',830011.52);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'public', 'budget', '2014-06-01',823940.04);
+
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'inhouse', 'budget', '2013-07-01',206847.24);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'inhouse', 'budget', '2013-08-01',260818.02);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'inhouse', 'budget', '2013-09-01',233342.73);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'inhouse', 'budget', '2013-10-01',322041.68);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'inhouse', 'budget', '2013-11-01',228784.52);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'inhouse', 'budget', '2013-12-01',160505.00);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'inhouse', 'budget', '2014-01-01',172062.69);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'inhouse', 'budget', '2014-02-01',221455.05);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'inhouse', 'budget', '2014-03-01',334799.01);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'inhouse', 'budget', '2014-04-01',250178.64);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'inhouse', 'budget', '2014-05-01',383099.97);
+insert into salesforce.sf_data (CreateDate, DataType, DataSubType, RefName, RefDate, RefValue) values (now(), 'Training', 'inhouse', 'budget', '2014-06-01',364446.46);

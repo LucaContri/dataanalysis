@@ -1,0 +1,62 @@
+ul.summary {
+	list-style: none;
+	display: inline-block;
+}
+
+ul.tabs {
+	margin: 0px;
+	padding: 0px;
+	list-style: none;
+}
+
+ul.tabs li {
+	background: none;
+	color: #222;
+	display: inline-block;
+	padding: 10px 15px;
+	cursor: pointer;
+}
+
+ul.tabs li.current {
+	background: #ededed;
+	color: #222;
+}
+
+.tab-content {
+	display: none;
+	background: #ffffff;
+	padding: 0px;
+}
+
+.tab-content.current {
+	display: inherit;
+}
+
+.wrapper {
+	width: 100%;
+	text-align: left;
+}
+
+.ui-grid-a .ui-block-a {
+	padding-top: 5px;
+	padding-bottom: 10px;
+	padding-right: 10px;
+	padding-left: 10px;
+	text-align: left;
+}
+
+.ui-grid-solo .ui-block-a {
+	padding-top: 5px;
+	padding-bottom: 10px;
+	padding-right: 10px;
+	padding-left: 10px;
+	text-align: center;
+}
+
+.ui-grid-c .ui-block-a, .ui-block-c {
+	padding-top: 5px;
+	padding-bottom: 10px;
+	padding-right: 20px;
+	padding-left: 10px;
+	text-align: right;
+}

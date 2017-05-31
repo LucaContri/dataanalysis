@@ -1,0 +1,38 @@
+# Revenues from Peoplesoft for Product Services
+
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Registration fee', 'PS', '2013-07-01',776287.85);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Registration fee', 'PS', '2013-08-01',763663.28);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Registration fee', 'PS', '2013-09-01',748671.75);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Registration fee', 'PS', '2013-10-01',769443.72);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Registration fee', 'PS', '2013-11-01',734545.81);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Registration fee', 'PS', '2013-12-01',757938.96);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Registration fee', 'PS', '2014-01-01',756795.44);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Registration fee', 'PS', '2014-02-01',699306.58);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Registration fee', 'PS', '2014-03-01',744568.14);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Registration fee', 'PS', '2014-04-01',749709.16);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Registration fee', 'PS', '2014-05-01',763568.1);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Registration fee', 'PS', '2014-06-01',719053.48);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Audit Revenue', 'PS', '2013-07-01',90975);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Audit Revenue', 'PS', '2013-08-01',47265);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Audit Revenue', 'PS', '2013-09-01',56562.5);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Audit Revenue', 'PS', '2013-10-01',38987.48);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Audit Revenue', 'PS', '2013-11-01',70967.5);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Audit Revenue', 'PS', '2013-12-01',68983);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Audit Revenue', 'PS', '2014-01-01',57855.79);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Audit Revenue', 'PS', '2014-02-01',48364.52);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Audit Revenue', 'PS', '2014-03-01',59794.07);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Audit Revenue', 'PS', '2014-04-01',46793.56);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Audit Revenue', 'PS', '2014-05-01',116271.97);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Audit Revenue', 'PS', '2014-06-01',44436.23);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Royalties', 'PS', '2013-07-01',28971.97);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Royalties', 'PS', '2013-08-01',23082.08);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Royalties', 'PS', '2013-09-01',30756.69);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Royalties', 'PS', '2013-10-01',25915.2);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Royalties', 'PS', '2013-11-01',25276.69);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Royalties', 'PS', '2013-12-01',28074.26);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Royalties', 'PS', '2014-01-01',26968.91);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Royalties', 'PS', '2014-02-01',26548.55);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Royalties', 'PS', '2014-03-01',26065.51);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Royalties', 'PS', '2014-04-01',27004.25);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Royalties', 'PS', '2014-05-01',26846.43);
+insert into sf_data (CreateDate, Region, DataType, DataSubType, RefName, RefDate, RefValue) VALUES (now(), 'Australia ', 'PeopleSoft',  'Royalties', 'PS', '2014-06-01',27153.87);

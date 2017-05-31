@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/SFCore"/>
+	<classpathentry kind="lib" path="C:/Code/DataAnalysis/SFDownloader/lib/commons-cli-1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Code/DataAnalysis/SFDownloader/lib/mysql-connector-java-5.1.26-bin.jar"/>
+	<classpathentry kind="lib" path="C:/Code/DataAnalysis/SFDownloader/lib/org.apache.log4j_1.2.13.v200903072027.jar"/>
+	<classpathentry kind="lib" path="C:/Code/DataAnalysis/SFDownloader/lib/force-wsc-32.0.0.jar"/>
+	<classpathentry kind="lib" path="C:/Code/DataAnalysis/SFDownloader/lib/wsc.partner.32.jar"/>
+	<classpathentry kind="lib" path="C:/Code/DataAnalysis/SFCore/lib/commons-lang-2.5.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

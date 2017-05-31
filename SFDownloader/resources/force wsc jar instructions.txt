@@ -1,0 +1,27 @@
+http://www.salesforce.com/us/developer/docs/api_asynch/Content/asynch_api_code_set_up_client.htm
+
+Set Up Your Client Application
+The Bulk API uses HTTP GET and HTTP POST methods to send and receive XML content, so it's very simple to build clients in the language of your choice. This section uses a Java sample and the Salesforce Web Service Connector (WSC) toolkit provided by Salesforce to simplify development. WSC is a high-performing web service client stack implemented using a streaming parser. The toolkit has built-in support for the basic operations and objects used in the Bulk API.
+
+Review the library here:
+
+https://github.com/forcedotcom/wsc
+
+To download the Salesforce WSC toolkit:
+
+Browse to http://mvnrepository.com/artifact/com.force.api/force-wsc
+Click the “Available versions” link that matches the API version you are using.
+Click Download (JAR) and save the file to a local directory.
+The Bulk API does not provide a login operation, so you must use the SOAP API to login.
+
+To download the partner WSDL and compile it to Java classes with the WSC toolkit:
+
+Log in to your Developer Edition Salesforce account. You must log in as an administrator or as a user who has the “Modify All Data” permission. Logins are checked to ensure they are from a known IP address. For more information, see “Setting Login Restrictions” in the Salesforce online help.
+From Setup, click Develop | API.
+Right-click Partner WSDL to display your browser's save options, and save the partner WSDL to a local directory. For information about the partner WSDL, see Using the Partner WSDL.
+Compile the partner API code from the WSDL using the WSC compile tool:
+java -classpath pathToJar\wsc.jar com.sforce.ws.tools.wsdlc pathToWSDL\wsdlFilename .\wsdlGenFiles.jar
+For example, if wsc.jar is installed in C:\salesforce\wsc, and the partner WSDL is saved to C:\salesforce\wsdl\partner:
+java -classpath C:\salesforce\wsc\wsc.jar com.sforce.ws.tools.wsdlc C:\salesforce\wsdl\partner\partner.wsdl .\partner.jar
+wsc.jar and the generated partner.jar are the only libraries needed in the classpath for the code examples in the following sections.
+

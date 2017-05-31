@@ -1,0 +1,54 @@
+#ui-content {
+   
+}
+
+.wrapper {
+    display: table;
+    width: 100%;
+    text-align: center;
+}
+
+.table_row {
+    display: table-row;
+    width: 100%;
+    text-align: center;
+}
+
+.auditdays_chart, .sales_chart {
+	position: relative;
+	left: 0px;
+    display: table-cell;
+    vertical-align: top;
+    text-align: center;
+}
+
+.auditdays_table, .auditdays_table_cell_header {
+    position: relative;
+	left: 0px;
+	bottom: 10px;
+    display: table-cell;
+    vertical-align: top;
+    text-align: center;
+}
+
+.sales_table, .auditdays_table {
+    position: relative;
+	top: 0px;
+}
+
+.sales_table, .sales_table_cell_header {
+	position: relative;
+	left: 0px;
+	bottom: 10px;
+    display: table-cell;
+    vertical-align: top;
+    text-align: left;
+}
+
+#ms_sales_pipeline {
+    
+}
+
+#ms_sales_table {
+    
+}

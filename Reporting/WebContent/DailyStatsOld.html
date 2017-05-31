@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+	<head>
+  		<title>Daily Statistics</title>
+  		<!-- Collapsable Sections -->
+  		<meta name="viewport" content="width=device-width, initial-scale=1">
+  		<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
+		<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+		<script src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+  		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.css">
+		
+  		<!-- Google Visualisation API -->
+		<script src="https://maps.googleapis.com/maps/api/js?libraries=geometry,visualization&sensor=true"></script>
+		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	    <script type="text/javascript">
+	      google.load("visualization", "1", {packages:["corechart", "table", "gauge"]});
+	    </script>
+	    
+	    <!-- Local -->
+		<link rel="stylesheet" type="text/css" href="styles/dailyStatsOld.css" />
+		<script type="text/javascript" src="javascript/visualisation.js"></script>
+		
+		<script>
+	      google.setOnLoadCallback(updateAllVisualisations);
+	    </script>
+	    
+	    <!-- Local -->
+		<link rel="stylesheet" type="text/css" href="styles/dailyStats.css" />
+		<script type="text/javascript" src="javascript/visualisation.js"></script>
+	</head>
+	<body>
+	<div data-role="page" id="pageone">
+		<div data-role="header">
+			<h1>Daily Statistics</h1>
+		</div>
+		<div data-role="main" class="ui-content">
+			<div data-role="collapsible" class="wrapper">
+				<h1>Audit Days</h1>
+				<div data-role="controlgroup" data-type="horizontal">
+					<a id="MS_Button" data-role="button" >MS</a>
+					<a id="Food_Button" data-role="button">Food</a>
+					<a id="Both_Button" data-role="button" class="ui-btn-active">MS+Food</a>
+				</div>
+				<script type="text/javascript">
+					$("#MS_Button").click(function(){
+						updateAuditDaysToMS();
+						$('#Food_Button').removeClass('ui-btn-active');
+						$('#MS_Button').addClass('ui-btn-active');
+						$('#Both_Button').removeClass('ui-btn-active');
+				        return true; 
+				    });
+					$("#Food_Button").click(function(){
+						updateAuditDaysToFood();
+						$('#Food_Button').addClass('ui-btn-active');
+						$('#MS_Button').removeClass('ui-btn-active');
+						$('#Both_Button').removeClass('ui-btn-active');
+				        return true; 
+				    });
+					$("#Both_Button").click(function(){
+						updateAuditDaysToBoth();
+						$('#Food_Button').removeClass('ui-btn-active');
+						$('#MS_Button').removeClass('ui-btn-active');
+						$('#Both_Button').addClass('ui-btn-active');
+				        return true; 
+				    });
+				</script>
+				<div class="table_row">
+					<div class="auditdays_table_cell_header" id="auditdays_chart_header"></div>
+					<div class="auditdays_table_cell_header" id="auditdays_table_changes_daily_header"></div>
+				</div>
+				<div class="table_row">
+					<div class="auditdays_chart" id="auditdays_chart"></div>
+					<div class="auditdays_table" id="auditdays_table_changes_daily"></div>
+				</div>
+				<div class="table_row">
+					<div class="auditdays_table_cell_header" id="auditdays_table_header"></div>
+					<div class="auditdays_table_cell_header" id="auditdays_table_changes_weekly_header"></div>
+				</div>
+				<div class="table_row">
+					<div class="auditdays_table" id="auditdays_table"></div>
+					<div class="auditdays_table" id="auditdays_table_changes_weekly"></div>
+				</div>
+			</div>
+			<div data-role="collapsible" class="wrapper">
+				<h1>Opportunities</h1>
+				<div data-role="controlgroup" data-type="horizontal">
+					<a id="Month_Button" data-role="button" class="ui-btn-active">Month</a>
+					<a id="Week_Button" data-role="button">Week</a>
+					<a id="Yesterday_Button" data-role="button">Yesterday</a>
+				</div>
+				<script type="text/javascript">
+					$("#Month_Button").click(function(){
+						updateSalesOpportunityDeliveryChartToMonthly();
+						updateSalesOpportunityDeliveryTableToMonthly();
+						updateOpportunityPipelineChartToMonthly();
+						updateOpportunityPipelineTableToMonthly();
+						$('#Week_Button').removeClass('ui-btn-active');
+						$('#Month_Button').addClass('ui-btn-active');
+						$('#Yesterday_Button').removeClass('ui-btn-active');
+				        return true; 
+				    });
+					$("#Week_Button").click(function(){
+						updateSalesOpportunityDeliveryChartToWeekly();
+						updateSalesOpportunityDeliveryTableToWeekly();
+						updateOpportunityPipelineChartToWeekly();
+						updateOpportunityPipelineTableToWeekly();
+						$('#Week_Button').addClass('ui-btn-active');
+						$('#Month_Button').removeClass('ui-btn-active');
+						$('#Yesterday_Button').removeClass('ui-btn-active');
+				        return true; 
+				    });
+					$("#Yesterday_Button").click(function(){
+						updateSalesOpportunityDeliveryChartToYesterday();
+						updateSalesOpportunityDeliveryTableToYesterday();
+						updateOpportunityPipelineChartToYesterday();
+						updateOpportunityPipelineTableToYesterday();						
+						$('#Week_Button').removeClass('ui-btn-active');
+						$('#Month_Button').removeClass('ui-btn-active');
+						$('#Yesterday_Button').addClass('ui-btn-active');
+				        return true; 
+				    });
+				</script>
+				<div class="table_row">
+					<div class="sales_table_cell_header" id="opportunity_header"></div>
+					<div class="sales_table_cell_header" id="opportunity_delivery_header"></div>
+				</div>
+				<div class="table_row">
+					<div class="sales_chart" id="opportunity_chart"></div>
+					<div class="sales_chart" id="opportunity_delivery_chart"></div>
+				</div>
+				<div class="table_row">
+					<div class="sales_table" id="opportunity_table"></div>
+					<div class="sales_table" id="opportunity_delivery_table"></div>
+				</div>
+				<div class="table_row">
+					<div class="sales_table_cell_header">FAB Ratio</div>
+					<div class="sales_table_cell_header" id="opportunity_delivery_header">&nbsp;</div>
+				</div>
+				<div class="table_row">
+					<div class="sales_table" id="fab_ratio"></div>
+					<div class="sales_table">&nbsp;</div>
+				</div>		
+			</div>
+			
+			<div data-role="collapsible">
+				<h1>Training</h1>
+				<p>Under construction</p>
+			</div>
+		</div>
+		<div data-role="footer">
+	    	<h1>SAI Global</h1>
+		</div>
+	</div> 
+	</body>
+</html>

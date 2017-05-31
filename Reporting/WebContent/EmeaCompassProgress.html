@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>EMEA Compass Food Implementation</title>
+<!-- Collapsable Sections -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script
+	src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+<link rel="stylesheet"
+	href="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.css">
+
+<!-- Google Visualisation API -->
+<script
+	src="https://maps.googleapis.com/maps/api/js?libraries=geometry,visualization&sensor=true"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+	google.load("visualization", "1", {
+		packages : [ "corechart", "table", "gauge" ]
+	});
+</script>
+
+<!-- Local -->
+<link rel="stylesheet" type="text/css" href="styles/emeaCompassProgress.css" />
+<script type="text/javascript"
+	src="javascript/visualisation.compass.progress.js"></script>
+
+<script>
+	google.setOnLoadCallback(refreshVisualisations);
+</script>
+
+</head>
+<body>
+	<div data-role="page" id="pageone">
+		<div data-role="header">
+			<h1>EMEA Compass Food Implementation</h1>
+		</div>
+		<div data-role="main" class="ui-content">
+			<div data-role="fieldcontain">
+				<label for="region-select" class="select"></label> <select
+					name="region-select" id="region-select"></select>
+			</div>
+			<script>
+				// Init select menu with available regions
+				if (window.XMLHttpRequest) {
+					// code for IE7+, Firefox, Chrome, Opera, Safari
+					xmlhttp = new XMLHttpRequest();
+				} else {
+					// code for IE6, IE5
+					xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+				}
+
+				xmlhttp.open("GET", "dailyStatsParameters?region=EMEA", false);
+				xmlhttp.send();
+				regions = JSON.parse(xmlhttp.responseText);
+				
+				for (var i = 0; i < regions.length; i++) {
+					appendRegion(regions[i], "#region-select");
+				}
+				$("#region-select").selectmenu();
+				$("#region-select").selectmenu("refresh");
+
+				$("#region-select").change(function() {
+					refreshVisualisations();
+				});
+				
+				function appendRegion(region, selectId) {
+					if ((region != null) && (region instanceof Array) && (region.length == 3)) {	
+						if (region[2] != null) {
+							$(selectId).append("<optgroup label='" + region[1] + "'>");
+							$(selectId).append("<option value='" + region[0] + "'>" + region[1] + "</option>");
+							for ( var i = 0; i < region[2].length; i++) {
+								appendRegion(region[2][i], selectId);
+							}
+							$(selectId).append("</optgroup>");
+						} else {
+							$(selectId).append("<option value='" + region[0] + "'>" + region[1] + "</option>");
+						}
+					}
+				}
+			</script>
+			</div>
+						<div data-role="collapsible" class="wrapper"
+				id="audit_days_container">
+				<h1 id="auditdays_chart_header">Audit Days</h1>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="auditdays_chart"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="auditdays_table"></div>	
+				</div>
+				<div class="spacer" style="font-size: 0; height: 20px; line-height: 0;">&nbsp;</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="auditdays_table_changes_daily_header"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="auditdays_table_changes_daily"></div>	
+				</div>
+				<div class="spacer" style="font-size: 0; height: 20px; line-height: 0;">&nbsp;</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="auditdays_table_changes_weekly_header"></div>	
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="auditdays_table_changes_weekly"></div>
+				</div>
+				<div class="spacer" style="font-size: 0; height: 20px; line-height: 0;">&nbsp;</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="auditdays_table_changes_monthly_header"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="auditdays_table_changes_monthly"></div>
+				</div>
+				
+				<div class="ui-grid-solo">
+					<div class="ui-block-a">
+						<p class="notes">Notes:
+						<ol class="notes">
+							<li>Open = Work Items (i.e. Audits) in statuses 'Open' and 'Service Change'</li>
+							<li>Scheduled = Work Items (i.e. Audits) in statuses 'Schedule' and 'Scheduled Offered'</li>
+							<li>Confirmed = Work Items (i.e. Audits) in all other statuses</li>
+							<li>Days Available = Open (1) + Scheduled (2) + Confirmed (3)</li>
+							<li>Budget = Only reflects the audit days where standard is in Compass for Management Systems and Food</li>
+						</ol>
+						</p>
+					</div>
+				</div>
+			</div>
+			<div data-role="collapsible" class="wrapper"
+				id="active_sites_container">
+				<h1 id="active_sites_table_header">Active Sites and Site Certifications Summary</h1>
+				<div class="ui-grid-solo">
+					<div class="ui-block-b" id="active_sites_chart_header">Percentage Active Sites with Certifications</div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="active_sites_chart"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="active_sites_table"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a">
+						<p class="notes">Notes:
+						<ol class="notes">
+							<li>Region = based on <i>Client Ownership</i> data</li>
+							<li>Active Sites = Total number of Active Sites</li>
+							<li>Sites with No Certifications = Further setup required, no audits can be allocated/scheduled</li>
+						</ol>
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<div data-role="collapsible" class="wrapper"
+				id="active_site_certs_container">
+				<h1 id="active_site_certs_table_header">Active Site Certifications - Lifecycle Summary</h1>
+				<div class="ui-grid-solo">
+					<div class="ui-block-b" id="active_site_certs_chart_header">Percentage Active Sites with Lifecycle Validated</div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="active_site_certs_chart"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="active_site_certs_table"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a">
+						<p class="notes">Notes:
+						<ol class="notes">
+							<li># Site Certs = Active ‘auditable’ site certifications (not including sample service)</li>
+							<li>Region = based on certification <i>Revenue Ownership</i> data</li>
+							<li># Site Certs Not Validated = Where configuration data for lifecycle (shows upcoming audits including type, duration and frequency) has not been created, reviewed or validated as part of the data enrichment</li>
+							<li>Standards excluded from these numbers are: (<i>14001:2004 | Certification</i>, <i>16949:2009 | Certification</i>, <i>18001:2007 | Certification</i>, <i>22000:2005 | Certification</i>, <i>27001:2005 | Certification</i>, <i>29001:2010 | Certification</i>, <i>9001:2008 | Certification</i>, <i>9100:2009 | Certification</i>, <i>CODEX HACCP - 2003 | Certification</i>, <i>FSSC 22000 V3 | Certification</i>, <i>FSSC PACK 22000 V3 | Certification</i>, <i>Q-BASE:2001 | Certification</i>)</li>
+						</ol>
+						</p>
+					</div>
+				</div>
+			</div>
+			<!--  
+			<div data-role="collapsible" class="wrapper" id="login_history_container">
+			<h1 id="login_history_table_header">User Login History</h1>
+
+				<div class="ui-grid-solo">
+					<div class="ui-block-a" id="login_history_table"></div>
+				</div>
+				<div class="ui-grid-solo">
+					<div class="ui-block-a">
+						<p class="notes">Notes:
+						<ol class="notes">
+							<li>Users filtered using Business (e.g. Business = 'EMEA - Italy')</li>
+						</ol>
+						</p>
+					</div>
+				</div>
+		</div>
+		-->
+		<div data-role="footer">
+			<h1>SAI Global</h1>
+		</div>
+	</div>
+</body>
+</html>
