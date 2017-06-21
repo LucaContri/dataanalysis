@@ -136,7 +136,7 @@ public class MIP2Processor extends AbstractProcessor {
 					if (x[i][j][t] != null && x[i][j][t].solutionValue()>0) {	
 						logger.debug("Worker " + i + " assigned to task " + j + " to be performed on: " + Utility.getActivitydateformatter().format(getTimeFromSlot(t, period).getTime()));
 						if(i<resources.size())
-							totalCost += Utility.calculateAuditCost(resources.get(i), workItemListBatch.get(j), workItemListBatch.get(j), travelCostCalculationType, db, false, true);
+							totalCost += Utility.calculateAuditCost(resources.get(i), workItemListBatch.get(j), workItemListBatch.get(j), travelCostCalculationType, db, false, true, true);
 					}	
 				}
 			}
@@ -159,11 +159,14 @@ public class MIP2Processor extends AbstractProcessor {
 	    
 		// Variables
 		MPVariable[][][] x = new MPVariable[constraints.length][constraints[0].length][constraints[0][0].length];
+		int num_variables = 0;
 		for (int i = 0; i < constraints.length; i++) {
 			for (int j = 0; j < constraints[i].length; j++) {
 				for (int t = 0; t < constraints[i][j].length; t++) {
-					if (constraints[i][j][t]==1)
+					if (constraints[i][j][t]==1) {
+						num_variables++;
 						x[i][j][t] = solver.makeIntVar(0, 1, "x["+i+","+j+","+t+"]");
+					}
 				}
 			}
 		}
@@ -241,8 +244,10 @@ public class MIP2Processor extends AbstractProcessor {
 			}
 		}
 		
-		logger.debug("No. variables: " + solver.numVariables());
-		logger.debug("No. constraints: " + solver.numConstraints());
+		logger.info("No audits:" + workItemListBatch.size());
+		logger.info("No auditors:" + resources.size());
+		logger.info("No. variables: " + solver.numVariables());
+		logger.info("No. constraints: " + solver.numConstraints());
 		
 		//solver.enableOutput();
 		solver.setTimeLimit(maxExecTime); 
@@ -650,7 +655,7 @@ public class MIP2Processor extends AbstractProcessor {
 		
 		for (int j = 0; j < workItemListBatch.size(); j++) {
 			for (int i = 0; i < resources.size(); i++) {
-				costs[i][j] = Utility.calculateAuditCost(resources.get(i), workItemListBatch.get(j), workItemListBatch.get(j),travelCostCalculationType, db, false, true);
+				costs[i][j] = Utility.calculateAuditCost(resources.get(i), workItemListBatch.get(j), workItemListBatch.get(j),travelCostCalculationType, db, false, true, true);
 			}
 			// Cost of not performing the audit
 			costs[resources.size()][j] = workItemListBatch.get(j).getCostOfNotAllocating();
@@ -680,6 +685,7 @@ public class MIP2Processor extends AbstractProcessor {
 								schedule.setResourceName(resources.get(i).getName());
 								schedule.setResourceType(resources.get(i).getType());
 								schedule.setStatus(ScheduleStatus.ALLOCATED);
+								schedule.setTotalCost(Utility.calculateAuditCost(resources.get(i), workItemListBatch.get(j), workItemListBatch.get(j), travelCostCalculationType, db, false, true, true));
 								if (workItemListBatch.get(j).getServiceDeliveryType().equalsIgnoreCase("Off Site"))
 									schedule.setDistanceKm(0);
 								else
@@ -762,6 +768,7 @@ public class MIP2Processor extends AbstractProcessor {
 						} else {
 							final int j1 = j;
 							schedules.stream().forEach(s -> s.setNotes(workItemListBatch.get(j1).getComment()));
+							schedules.stream().forEach(s -> s.setTotalCost(workItemListBatch.get(j1).getCostOfNotAllocating()));
 						}
 						
 						// Add unallocated only if needs to be logged.  Unallocated audits moved to next period are not logged to avoid duplications

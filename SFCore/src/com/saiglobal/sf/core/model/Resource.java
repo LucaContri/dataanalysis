@@ -261,10 +261,11 @@ public class Resource extends GenericSfObject implements Comparable<Resource> {
 	
 	public String toCsv() {
 		String competencyString = "";
-		for (Competency aCompetency : this.competencies) {
-			competencyString += aCompetency.getCompetencyName();
-		}
-		return getId() + "," + getName() + "," + getManagerName() + "," + getReportingBusinessUnit() + "," + getHome().getState() + "," + getCapacity() + "," + getAvailableHours() + "," + competencyString;
+		if(this.competencies != null)
+			for (Competency aCompetency : this.competencies) {
+				competencyString += aCompetency.getCompetencyName();
+			}
+		return getId() + "," + getName() + "," + ((getManagerName()==null)?"":getManagerName()) + "," + ((getReportingBusinessUnit()==null)?"":getReportingBusinessUnit()) + "," + ((getHome()==null) || (getHome().getState()==null)?"":getHome().getState()) + "," + getCapacity() + "," + getAvailableHours() + "," + competencyString;
 	}
 
 	public String getManagerName() {

@@ -389,6 +389,7 @@ public class Utility {
 				} else {
 					logger.error("Google Geocode API response: " + geocoderResponse.getStatus().name() + " with request string: " + address);
 					throw new GeoCodeApiException(address, geocoderResponse.getStatus());
+					
 				}
 			}
 		}
@@ -519,7 +520,7 @@ public class Utility {
 		return distance;
 	}
 	
-	public static double calculateTravelCost(double distance, double durationHours, TravelCostCalculationType type) {
+	private static double calculateTravelCost(double distance, double durationHours, TravelCostCalculationType type) {
 		double costMilageAUDperKm = 0.5/0.7;
 		double costAirportTransferReturn = 120*costMilageAUDperKm;
 		double costAirportParkingFirstDay = 50/0.7;
@@ -562,12 +563,15 @@ public class Utility {
 		return cost;
 	}
 	
-	public static double calculateAuditCost(SfResourceType resourceType, double resourceHourlyRate, double requiredDuration, double oneWayDistance, TravelCostCalculationType type, boolean isMilkRun, boolean isFirstInMilkRun, boolean isPrimary) {
+	public static double calculateAuditCost(SfResourceType resourceType, double resourceHourlyRate, double requiredDuration, double oneWayDistance, double returnDistance, TravelCostCalculationType type, boolean isMilkRun, boolean isFirstInMilkRun, boolean isPrimary) {
 		// Costs in AUD
+		double cost = calculateResourceCost(resourceType, resourceHourlyRate, requiredDuration);;
+		cost += calculateTravelCost(requiredDuration, oneWayDistance, returnDistance, type, isMilkRun, isFirstInMilkRun, isPrimary );
+		return cost;
+	}
+	
+	public static double calculateResourceCost(SfResourceType resourceType, double resourceHourlyRate, double requiredDuration) {
 		double cost = 0;
-		double costDailySubsistence = 40/0.7;
-		double costHotelDay = 100/0.7;
-		double maxReturnHomeDistance = 200;
 		
 		// Resource Cost
 		if (resourceType.equals(SfResourceType.Contractor)) {
@@ -576,12 +580,20 @@ public class Utility {
 				cost += requiredDuration*resourceHourlyRate;
 			}
 		}
+		
+		return cost;
+	}
+	
+	public static double calculateTravelCost(double requiredDuration, double oneWayDistance, double returnDistance, TravelCostCalculationType type, boolean isMilkRun, boolean isFirstInMilkRun, boolean isPrimary) {
+		double cost = 0;
+		double costDailySubsistence = 40/0.7;
+		double costHotelDay = 100/0.7;
+		double maxReturnHomeDistance = 200;
+		
 		if (isPrimary) {
 			// Travel cost 
-			if(isMilkRun)
-				cost += calculateTravelCost(oneWayDistance, requiredDuration, type);
-			else
-				cost += 2*calculateTravelCost(oneWayDistance, requiredDuration, type);
+			cost += calculateTravelCost(oneWayDistance, requiredDuration, type);
+			cost += calculateTravelCost(returnDistance, requiredDuration, type);
 			
 			// Accommodation and Meals
 			cost += costDailySubsistence*Math.ceil((requiredDuration/8));
@@ -594,32 +606,26 @@ public class Utility {
 				cost += costHotelDay;
 			}
 		}
-		
 		return cost;
 	}
-	
-	public static double calculateAuditCost(Resource resource, WorkItem workItem, WorkItem precedingWorkItem, TravelCostCalculationType type, DbHelper db, boolean isMilkRun, boolean isFirstAuditInRun) throws Exception {
-		double distance = Double.MAX_VALUE;
-		if(workItem.isPrimary())
-			if(precedingWorkItem != null && workItem != null && !workItem.getName().equalsIgnoreCase(precedingWorkItem.getName())) 
-				distance = calculateDistanceKm(resource.getHome(), workItem.getClientSite(), db);
+	public static double calculateAuditCost(Resource resource, WorkItem workItem, WorkItem precedingWorkItem, TravelCostCalculationType type, DbHelper db, boolean isMilkRun, boolean isFirstAuditInRun, boolean isLastAuditInRun) throws Exception {
+		double oneWayDistance = Double.MAX_VALUE;
+		double returnDistance = Double.MAX_VALUE;
+		if(workItem.isPrimary()) {
+			if(isFirstAuditInRun) 
+				oneWayDistance = calculateDistanceKm(resource.getHome(), workItem.getClientSite(), db);
 			else
-				distance = calculateDistanceKm(precedingWorkItem.getClientSite(), workItem.getClientSite(), db);
-		else
-			distance = 0;
-		return calculateAuditCost(resource.getType(), resource.getHourlyRate(), workItem.getRequiredDuration() + workItem.getLinkedWorkItems().stream().mapToInt(wi -> (int) Math.ceil(wi.getRequiredDuration())).sum(), distance, type, isMilkRun, isFirstAuditInRun, workItem.isPrimary());
+				oneWayDistance = calculateDistanceKm(precedingWorkItem.getClientSite(), workItem.getClientSite(), db);
+			if(isLastAuditInRun) 
+				returnDistance = calculateDistanceKm(workItem.getClientSite(), resource.getHome(), db);
+			else
+				returnDistance = 0;
+		} else {
+			oneWayDistance = 0;
+		}
+		return calculateAuditCost(resource.getType(), resource.getHourlyRate(), workItem.getRequiredDuration() + workItem.getLinkedWorkItems().stream().mapToInt(wi -> (int) Math.ceil(wi.getRequiredDuration())).sum(), oneWayDistance, returnDistance, type, isMilkRun, isFirstAuditInRun, workItem.isPrimary());
 	}
-	/*
-	public static double calculateOneWayAuditCost(Resource resource, WorkItem workItem, WorkItem precedingWorkItem, TravelCostCalculationType type, DbHelper db) throws Exception {
-		double distance = Double.MAX_VALUE;
-		if(precedingWorkItem != null && workItem != null && workItem.getId().equalsIgnoreCase(precedingWorkItem.getId())) 
-			distance = calculateDistanceKm(resource.getHome(), workItem.getClientSite(), db);
-		else
-			distance = calculateDistanceKm(precedingWorkItem.getClientSite(), workItem.getClientSite(), db);
-			
-		return calculateAuditCost(resource.getType(), resource.getHourlyRate(), workItem.getRequiredDuration() + workItem.getLinkedWorkItems().stream().mapToInt(wi -> (int) Math.ceil(wi.getRequiredDuration())).sum(), distance, type);
-	}
-	*/
+	
 	public static Location getClosestAirport(Location location, DbHelper db) throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException, GeoCodeApiException {
 		Location closestAirport = null;
 		double minDistance = Long.MAX_VALUE;
@@ -1417,5 +1423,22 @@ public static void sftp(String server, int port, String userName, String passwor
 		}
 		
 		return returnDistance?totalEquivalentTravelReturnHrs:totalEquivalentTravelReturnHrs/2;
+	}
+	
+	public static double calculateTravelTimeHrsRetail(double distanceKm, boolean returnDistance) {
+		if (!returnDistance)
+			distanceKm = distanceKm*2;
+		double travelTime;
+		if (distanceKm<0) {
+			logger.info("Error in calculating travel time.  Assuming WCS 1 day");
+			travelTime = 16;
+		} else {
+			// Assume Driving at average speed 50Km/hr
+			travelTime = distanceKm/60.0;
+		}
+		
+		
+		
+		return returnDistance?travelTime:travelTime/2;
 	}
 }

@@ -58,7 +58,7 @@ public class Schedule {
 		setWorkItemSource(wi.getWorkItemSource());
 		setWorkItemCountry(wi.getClientSite().getCountry());
 		setWorkItemState(wi.getClientSite().getState());
-		setWorkItemTimeZone(wi.getClientSite().getTimeZone().getID());
+		setWorkItemTimeZone(wi.getClientSite().getTimeZone() == null?"":wi.getClientSite().getTimeZone().getID());
 		setLatitude(wi.getClientSite().getLatitude());
 		setLongitude(wi.getClientSite().getLongitude());
 		setType(ScheduleType.AUDIT);
@@ -102,6 +102,7 @@ public class Schedule {
 		this.competencies = s.competencies==null?null:new String(s.competencies);
 		this.comment = s.comment==null?null:new String(s.comment);
 		this.travelDuration = s.travelDuration;
+		this.totalCost = s.totalCost;
 	}
 	
 	

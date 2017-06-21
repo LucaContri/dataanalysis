@@ -63,7 +63,7 @@ public class ResourceAllocatorMIPMilkRunsUK implements Allocator {
 		cal.set(Calendar.MILLISECOND, 0);
 		int offset = tz.getOffset(cal.getTimeInMillis());
 		cal.set(Calendar.MILLISECOND, -offset);
-		cal.set(2018, Calendar.MARCH, 1);
+		cal.set(2018, Calendar.JANUARY, 1);
 		parameters.setStartDate(cal.getTime());
 		// Add some slack to load previous events
 		cal.add(Calendar.DATE, -10);
@@ -80,7 +80,7 @@ public class ResourceAllocatorMIPMilkRunsUK implements Allocator {
 		}
 		cal.add(Calendar.MONTH, no_of_months);
 		cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
-		cal.set(2018, Calendar.MARCH, 31);
+		cal.set(2018, Calendar.JUNE, 30);
 		
 		parameters.setEndDate(cal.getTime());
 		// Add some slack to load following events

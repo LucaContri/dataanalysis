@@ -2,6 +2,7 @@ package com.saiglobal.sf.downloader.main;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.ResultSet;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -46,7 +47,7 @@ public class SFExporter {
 			gotLock = Utility.getLock(lockName);
 			if (!gotLock) {
 				logger.info("Cannot get lock.  Process already running.  Exiting");
-				return;
+				return;	
 			}
 			
 			properties.setCurrentTask(taskName);
@@ -72,10 +73,22 @@ public class SFExporter {
 					         StandardOpenOption.TRUNCATE_EXISTING);
 					 */
 					Files.deleteIfExists(Paths.get(properties.getReportFolder() + "/export/" + properties.getCurrentDataSource() + "." + table + ".csv"));
-					String cmd = "SELECT * INTO OUTFILE '" + properties.getReportFolder() + "/export/" + properties.getCurrentDataSource() + "." + table + ".csv' "
+					String columnsCmd = "select COLUMN_NAME "
+							+ "from INFORMATION_SCHEMA.COLUMNS "
+							+ "WHERE TABLE_NAME = '" + table + "' "
+							+ "AND TABLE_SCHEMA = '" + properties.getDbSchema() + "' "
+							+ "order BY ORDINAL_POSITION;";
+					ResultSet rs = dbHelper.executeSelect(columnsCmd, -1);
+					String cmd = "SELECT t.* INTO OUTFILE '" + properties.getReportFolder() + "/export/" + properties.getCurrentDataSource() + "." + table + ".csv' "
 							+ "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"' "
 							+ "LINES TERMINATED BY '\n' "
-							+ "FROM `" + table + "`";
+							+ "FROM (select ";
+					while (rs.next()) {
+						cmd += "'" + rs.getString("COLUMN_NAME") + "',";
+					}
+					cmd = Utility.removeLastChar(cmd) + " ";
+					cmd += "UNION "
+							+ "SELECT * FROM `" + table + "`) t ";
 					logger.info("Exporting " + properties.getReportFolder() + "/export/" + properties.getCurrentDataSource() + "." + table + ".csv'");
 					logger.info(cmd);
 					dbHelper.executeSelect(cmd,-1);

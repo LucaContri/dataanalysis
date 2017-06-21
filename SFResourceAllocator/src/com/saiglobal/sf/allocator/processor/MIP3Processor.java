@@ -45,7 +45,7 @@ public class MIP3Processor extends AbstractProcessor {
 	final Locale currentLocale = Locale.getDefault();
 	final NumberFormat percentFormatter = NumberFormat.getPercentInstance(currentLocale);
 	final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(currentLocale);
-	final long maxExecTime = 300000; // 5 minutes
+	final long maxExecTime = 3000000; // 50 minutes
 	final int cost_of_not_performing = 50000;
 	final int no_of_closest_auditors = 5;
 	int timeSlothours = 4;
@@ -137,7 +137,7 @@ public class MIP3Processor extends AbstractProcessor {
 				Index idx = new Index(key);
 				if(idx.getAuditor()<resources.size()) {
 					logger.debug(resources.get(idx.getAuditor()).getName() + " assigned to audit " + workItemListBatch.get(idx.getAudit()).getName() + " to be performed on: " + Utility.getActivitydateformatter().format(getTimeFromSlot(idx.getTimeSlot(), period).getTime()) + (idx.getAudit()==idx.getPreviousAudit()?"":(" as part of a milk run following audit" + workItemListBatch.get(idx.getPreviousAudit()).getName())));
-					totalCost += Utility.calculateAuditCost(resources.get(idx.getAuditor()), workItemListBatch.get(idx.getAudit()), workItemListBatch.get(idx.getPreviousAudit()), travelCostCalculationType, db, (idx.getPreviousAudit()!=idx.getAudit() || getFollowingAuditInMilkRun(idx, x)==null), idx.getPreviousAudit()==idx.getAudit());
+					totalCost += Utility.calculateAuditCost(resources.get(idx.getAuditor()), workItemListBatch.get(idx.getAudit()), workItemListBatch.get(idx.getPreviousAudit()), travelCostCalculationType, db, (idx.getPreviousAudit()!=idx.getAudit() || getFollowingAuditInMilkRun(idx, x)==null), idx.getPreviousAudit()==idx.getAudit(),getFollowingAuditInMilkRun(idx, x)==null);
 				} else {
 					logger.debug("Audit " + workItemListBatch.get(idx.getAudit()).getName() + " unallocated");
 					totalCost += workItemListBatch.get(idx.getAudit()).getCostOfNotAllocating();
@@ -163,7 +163,6 @@ public class MIP3Processor extends AbstractProcessor {
 	    
 		// Variables
 	    logger.debug("MPVariable[constraints.length][constraints[0].length][constraints[0][0].length][constraints[0][0][0].length = " + constraints.length * constraints[0].length * constraints[0][0].length *constraints[0][0][0].length);
-		//MPVariable[][][][] x = new MPVariable[constraints.length][constraints[0].length][constraints[0][0].length][constraints[0][0][0].length];
 		HashMap<String, MPVariable> x = new HashMap<String, MPVariable>();
 		for (int i = 0; i < constraints.length; i++) {
 			for (int j = 0; j < constraints[i].length; j++) {
@@ -187,17 +186,20 @@ public class MIP3Processor extends AbstractProcessor {
 						if (constraints[i][j][jp][t]) {
 							ct1.setCoefficient(x.get(i+","+j+","+jp+","+t), audit_duration[i][j][jp]);
 							
-							// If auditor i* performs audit j* preceded by audit jp* at time t*, then auditor i* has to perform audit jp* at time (t*-audit_duration[i][jp][jp2])
-							MPConstraint ct2 = solver.makeConstraint(0, 1);
-							ct2.setCoefficient(x.get(i+","+j+","+jp+","+t), -1);
-							for (int jp2 = 0; jp2 < constraints[i][jp].length; jp2++) {
-								for (int t2 = 0; t2 < constraints[i][jp][jp2].length; t2++) {
-									if (((t-(int)Math.ceil(audit_duration[i][jp][jp2]/timeSlothours)>=0) 
-											&& (t2 == t-(int)Math.ceil(audit_duration[i][jp][jp2]/timeSlothours))) 
-										|| !timeConstrained)
-										ct2.setCoefficient(x.get(i+","+j+","+jp+","+t), 1);
-									else 
-										ct2.setCoefficient(x.get(i+","+j+","+jp+","+t), 0);
+							if(parameters.isMilkRuns() && j!=jp) {
+								// If auditor i* performs audit j* preceded by audit jp*(!=j) at time t*, then auditor i* has to perform audit jp* at time (t*-audit_duration[i][jp][jp2])
+								MPConstraint ct2 = solver.makeConstraint(0, 1);
+								ct2.setCoefficient(x.get(i+","+j+","+jp+","+t), -1);
+								for (int jp2 = 0; jp2 < constraints[i][jp].length; jp2++) {
+									//for (int t2 = 0; t2 < constraints[i][jp][jp2].length; t2++) {
+										if (((t-(int)Math.ceil(audit_duration[i][jp][jp2]/timeSlothours)>=0) 
+												//&& (t2 == t-(int)Math.ceil(audit_duration[i][jp][jp2]/timeSlothours))
+												) 
+											|| !timeConstrained)
+											ct2.setCoefficient(x.get(i+","+jp+","+jp2+","+(timeConstrained?(t-(int)Math.ceil(audit_duration[i][jp][jp2]/timeSlothours)):0)), 1);
+										//else 
+											//ct2.setCoefficient(x.get(i+","+jp+","+jp2+","+t2), 0);
+									//}
 								}
 							}
 						}
@@ -330,7 +332,7 @@ public class MIP3Processor extends AbstractProcessor {
 	private boolean[][][][] presolve() {
 		/*
 		 * Presolving. The purpose of presolving, which takes place
-		 * before the tree search is started, is threefold: first, it reduces 
+		 * before the tree search is started, is to reduces 
 		 * the size of the model by removing irrelevant information 
 		 * such as redundant constraints or fixed variables.
 		 */
@@ -340,73 +342,97 @@ public class MIP3Processor extends AbstractProcessor {
 			for (int j = 0; j < num_audits; j++) {
 				boolean cannotPerform = (i<(num_auditors-1)) && !resources.get(i).canPerform(workItemListBatch.get(j));
 				for (int jp = 0; jp < num_audits; jp++) {
-					// Excludes auditors not capable of performing the audit
-					if(!parameters.isMilkRuns() && j!=jp) {
-						// If not doing milk runs excludes all j!=jp
-						for (int t = 0; t < num_time_slots; t++) {
-							constraints[i][j][jp][t] = false;
-						}  
-					} else {
-						if (cannotPerform) {
-							for (int t = 0; t < num_time_slots; t++) {
+					boolean cannotPerformjp = (i<(num_auditors-1)) && !resources.get(i).canPerform(workItemListBatch.get(jp));
+					for (int t = 0; t < num_time_slots; t++) {
+						// Default
+						constraints[i][j][jp][t] = true;
+						// If this is the fake auditor we allow only scheduling of no milk runs (j!=jp) at time zero (t=0)
+						if(i==num_auditors-1) {
+							if(j!=jp || t>0)
 								constraints[i][j][jp][t] = false;
-							}
-						} else {
-							boolean cannotPerformjp = (i<(num_auditors-1)) && !resources.get(i).canPerform(workItemListBatch.get(jp));
-							boolean heuristicExcludeAsNotGoodCandidateForMilkRun = false;
+							else
+								constraints[i][j][jp][t] = true;
+							continue;
+						}
+						
+						if (cannotPerform) {
+							// Excludes auditors not capable of performing the audit
+							constraints[i][j][jp][t] = false;
+							continue;
+						}
+						if (cannotPerformjp) {
+							// Excludes auditors not capable of performing the previous audit
+							constraints[i][j][jp][t] = false;
+							continue;
+						}
+						
+						boolean heuristicExcludeAsNotGoodCandidateForMilkRun = false;
+						heuristicIf:
+						if(!cannotPerform && !cannotPerformjp && parameters.isMilkRuns()) {
 							
-							if(!cannotPerform) {
-								double distanceJToJp = Double.MAX_VALUE;
-								double distanceHomeToJ = Double.MAX_VALUE;
-								double distanceHomeToJp = Double.MAX_VALUE;
-								try {
-									distanceJToJp = Utility.calculateDistanceKm(workItemListBatch.get(j).getClientSite(), workItemListBatch.get(jp).getClientSite(), db);
-								} catch (Exception e) {
-									//Ignore.  Use default
-								}
-								try {
-									distanceHomeToJp = Utility.calculateDistanceKm(resources.get(i).getHome(), workItemListBatch.get(jp).getClientSite(), db);
-								} catch (Exception e) {
-									//Ignore.  Use default
-								}
-								if(distanceJToJp>=distanceHomeToJp) {
-									heuristicExcludeAsNotGoodCandidateForMilkRun = true;
-								} else {
-									try {
-										distanceHomeToJ = Utility.calculateDistanceKm(resources.get(i).getHome(), workItemListBatch.get(j).getClientSite(), db);
-									} catch (Exception e) {
-										//Ignore.  Use default
-									}
-									double travelTime = Utility.calculateTravelTimeHrs(distanceHomeToJ, false);
-									if (travelTime==0 && j!=jp) {
-										// If travel time between auditor and audit is 0 (i.e. done within normal duty), the audit cannot be part of a milk run for this auditor at any time
-										heuristicExcludeAsNotGoodCandidateForMilkRun = true;
-									}
-								}
+							double distanceJToJp = Double.MAX_VALUE;
+							double distanceHomeToJ = Double.MAX_VALUE;
+							double distanceHomeToJp = Double.MAX_VALUE;
+							try {
+								distanceJToJp = Utility.calculateDistanceKm(workItemListBatch.get(j).getClientSite(), workItemListBatch.get(jp).getClientSite(), db);
+							} catch (Exception e) {
+								//Ignore.  Use default
+							}
+							try {
+								distanceHomeToJp = Utility.calculateDistanceKm(resources.get(i).getHome(), workItemListBatch.get(jp).getClientSite(), db);
+							} catch (Exception e) {
+								//Ignore.  Use default
 							}
 							
-							for (int t = 0; t < num_time_slots; t++) {
-								if (cannotPerformjp || heuristicExcludeAsNotGoodCandidateForMilkRun) {
-									// Excludes auditors not capable of performing the previous audit or previous audit is not a good candidate for milk run
-									constraints[i][j][jp][t] = false;
-								} else {
-									double jpMinDuration = Arrays.stream(audit_duration[i][jp]).min().orElse(0);
-									
-									if (i<num_auditors-1 
-										&& (
-											(t - (int) Math.ceil(jpMinDuration)/timeSlothours<0)
-											|| (resource_availability[i][t]<Math.ceil(audit_duration[i][j][jp]/timeSlothours))
-											|| (resource_availability[i][t - (int) Math.ceil(jpMinDuration)/timeSlothours]<Math.ceil(jpMinDuration/timeSlothours)))) {
-										// Exclude not available dates either for audit j starting at t or preceding audit jp starting at (t - (int) Math.ceil(jpMinDuration)/timeSlothours) 
-										constraints[i][j][jp][t] = false;
-									} else {
-										// Deafult
-										constraints[i][j][jp][t] = true;
-									}
-								}
+							if(distanceJToJp>=distanceHomeToJp) {
+								heuristicExcludeAsNotGoodCandidateForMilkRun = true;
+								break heuristicIf;
+							}
+							
+							try {
+								distanceHomeToJ = Utility.calculateDistanceKm(resources.get(i).getHome(), workItemListBatch.get(j).getClientSite(), db);
+							} catch (Exception e) {
+								//Ignore.  Use default
+							}
+							
+							double travelTimeJToJ = Utility.calculateTravelTimeHrs(distanceJToJp, false);
+							if (travelTimeJToJ>0) {
+								// If travel time between the audits cannot be done within normal daily duties
+								heuristicExcludeAsNotGoodCandidateForMilkRun = true;
+								break heuristicIf;
+							}
+							
+							double travelTimeHomeToJ = Utility.calculateTravelTimeHrs(distanceHomeToJ, false);
+							if (travelTimeHomeToJ==0) {
+								// If travel time between auditor and audit is 0 (i.e. done within normal duty), the audit cannot be part of a milk run for this auditor at any time
+								heuristicExcludeAsNotGoodCandidateForMilkRun = true;
 							}
 						}
-					}	
+						if (heuristicExcludeAsNotGoodCandidateForMilkRun) {
+							// Excludes auditors/audit combinations not a good candidate for milk run
+							constraints[i][j][jp][t] = false;
+							continue;
+						}
+						
+						double jpMinDuration = Arrays.stream(audit_duration[i][jp]).min().orElse(0);
+								
+						if (i<num_auditors-1 
+							&& (
+								((t - (int) Math.ceil(jpMinDuration)/timeSlothours<0) && j!=jp)
+								|| (resource_availability[i][t]<Math.ceil(audit_duration[i][j][jp]/timeSlothours))
+								|| ((t - (int) Math.ceil(jpMinDuration))>=0 && (resource_availability[i][t - (int) Math.ceil(jpMinDuration)/timeSlothours]<Math.ceil(jpMinDuration/timeSlothours))) && j!=jp)) {
+							// Exclude not available dates either for audit j starting at t or preceding audit jp starting at (t - (int) Math.ceil(jpMinDuration)/timeSlothours) 
+							constraints[i][j][jp][t] = false;
+							continue;
+							
+						}
+					
+						// If not doing milk runs excludes all j!=jp
+						if(!parameters.isMilkRuns() && j!=jp) {
+							constraints[i][j][jp][t] = false;
+							continue;
+						}
+					}
 				}
 			}
 		}
@@ -523,13 +549,22 @@ public class MIP3Processor extends AbstractProcessor {
 	private List<WorkItem> getUnallocated(HashMap<String, MPVariable> x) {
 		List<WorkItem> unallocated = new ArrayList<WorkItem>();
 	
+		
 		if (x == null)
 			return unallocated;
-		//for (int j = 0; j < x[0].length; j++) {
-		//	if (Arrays.stream(x[x.length-1][j]).flatMap(x1 -> Arrays.stream(x1)).mapToInt(t -> t==null?0:(int)t.solutionValue()).sum()>0) {
-		//		unallocated.add(workItemListBatch.get(j));
-		//	}
-		//}
+		auditloop:
+		for (int j = 0; j < num_audits; j++) {
+			for (int jp = 0; jp < num_audits; jp++) {
+				for (int t = 0; t < num_time_slots; t++) {
+					Index idx = new Index(num_auditors-1, j, jp, t);
+					if(x.containsKey(idx.toKey()) && x.get(idx.toKey()).solutionValue()>0) {
+						unallocated.add(workItemListBatch.get(j));
+						continue auditloop;
+					}
+				}
+			}
+		}
+		
 		return unallocated;
 	}
 	
@@ -742,13 +777,8 @@ public class MIP3Processor extends AbstractProcessor {
 		for (int j = 0; j < workItemListBatch.size(); j++) {
 			for (int jp = 0; jp < workItemListBatch.size(); jp++) {
 				for (int i = 0; i < resources.size(); i++) {
-					double distance = Double.MAX_VALUE;
-					if (j==jp)
-						distance = Utility.calculateDistanceKm(workItemListBatch.get(j).getClientSite(), resources.get(i).getHome(), db);
-					else
-						distance = Utility.calculateDistanceKm(workItemListBatch.get(jp).getClientSite(), workItemListBatch.get(j).getClientSite(), db);
 					// At this point I do not know if the audit is the last in the milk run.  However, if we minimise the one way travel cost, we minimise the return travel cost.
-					costs[i][j][jp] = Utility.calculateAuditCost(resources.get(i).getType(), resources.get(i).getHourlyRate(), workItemListBatch.get(j).getRequiredDuration() + workItemListBatch.get(j).getLinkedWorkItems().stream().mapToInt(wi -> (int) Math.ceil(wi.getRequiredDuration())).sum(), distance, travelCostCalculationType,  true, jp==j, workItemListBatch.get(j).isPrimary());
+					costs[i][j][jp] = Utility.calculateAuditCost(resources.get(i), workItemListBatch.get(j), workItemListBatch.get(j),travelCostCalculationType, db, true, jp==j, false);
 				}
 				// Cost of not performing the audit
 				costs[resources.size()][j][jp] = workItemListBatch.get(j).getCostOfNotAllocating();
@@ -761,12 +791,10 @@ public class MIP3Processor extends AbstractProcessor {
 	private Index getPreviousAuditInMilkRun(Index idx, HashMap<String, MPVariable> solution) {
 		if (idx.getAudit()==idx.getPreviousAudit())
 			return idx;
-		for (int jp=0; jp<num_audits; jp++) {
-			for (int t=0;t<num_time_slots; t++) {
-				if(solution.containsKey(idx.getKey(idx.getAuditor(), idx.getPreviousAudit(), jp, t)) && solution.get(idx.getKey(idx.getAuditor(), idx.getPreviousAudit(), jp, t)).solutionValue()>0 )
+		for (int jp=0; jp<num_audits; jp++) 
+			for (int t=0;t<num_time_slots; t++) 
+				if(solution.containsKey(idx.getKey(idx.getAuditor(), idx.getPreviousAudit(), jp, t)) && solution.get(idx.getKey(idx.getAuditor(), idx.getPreviousAudit(), jp, t)).solutionValue()>0)
 					return new Index(idx.getAuditor(), idx.getPreviousAudit(), jp, t);
-			}
-		}
 		return null;
 	}
 	
@@ -817,7 +845,7 @@ public class MIP3Processor extends AbstractProcessor {
 						schedule.setResourceType(resources.get(idx.getAuditor()).getType());
 						schedule.setStatus(ScheduleStatus.ALLOCATED);
 						schedule.setWorkItemGroup(getMilkRunId(key,x));
-						schedule.setTotalCost(Utility.calculateAuditCost(resources.get(idx.getAuditor()), workItemListBatch.get(idx.getAudit()), workItemListBatch.get(idx.getPreviousAudit()), travelCostCalculationType, db, (idx.getAudit()!=idx.getPreviousAudit() || getFollowingAuditInMilkRun(idx, x)!=null), idx.getAudit()==idx.getPreviousAudit()));
+						schedule.setTotalCost(Utility.calculateAuditCost(resources.get(idx.getAuditor()), workItemListBatch.get(idx.getAudit()), workItemListBatch.get(idx.getPreviousAudit()), travelCostCalculationType, db, (idx.getAudit()!=idx.getPreviousAudit() || getFollowingAuditInMilkRun(idx, x)!=null), idx.getAudit()==idx.getPreviousAudit(), getFollowingAuditInMilkRun(idx, x)!=null));
 						if (workItemListBatch.get(idx.getAudit()).getServiceDeliveryType().equalsIgnoreCase("Off Site"))
 							schedule.setDistanceKm(0);
 						else
@@ -912,6 +940,7 @@ public class MIP3Processor extends AbstractProcessor {
 				} else {
 					final int j1 = idx.getAudit();
 					schedules.stream().forEach(s -> s.setNotes(workItemListBatch.get(j1).getComment()));
+					schedules.stream().forEach(s -> s.setTotalCost(workItemListBatch.get(j1).getCostOfNotAllocating()));
 				}
 				
 				// Add unallocated only if needs to be logged.  Unallocated audits moved to next period are not logged to avoid duplications

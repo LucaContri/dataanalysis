@@ -336,6 +336,8 @@ public class WorkItem extends GenericSfObject implements Comparable<WorkItem> {
 	
 	public String getRequiredCompetenciesString() {
 		String aCompetenciesString = "";
+		if(this.requiredCompetencies == null)
+			return aCompetenciesString;
 		for (Competency competency : this.requiredCompetencies) {
 			aCompetenciesString += competency.getCompetencyName() + ",";
 		}
@@ -351,6 +353,8 @@ public class WorkItem extends GenericSfObject implements Comparable<WorkItem> {
 	}
 	
 	public Competency getPrimaryStandard() {
+		if(this.getRequiredCompetencies() == null)
+			return null;
 		for (Competency aCompetency : this.getRequiredCompetencies()) {
 			if (aCompetency.getType().equals(CompetencyType.PRIMARYSTANDARD))
 				return aCompetency;

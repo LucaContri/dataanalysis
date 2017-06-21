@@ -8,5 +8,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="C:/Code/DataAnalysisBB/dataanalysis/SFResourceAllocator/lib/com.google.ortools.jar"/>
 	<classpathentry kind="lib" path="C:/Code/DataAnalysisBB/dataanalysis/SFResourceAllocator/lib/protobuf.jar"/>
+	<classpathentry kind="lib" path="C:/Code/DataAnalysisBB/dataanalysis/SFResourceAllocator/lib/commons-lang-2.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

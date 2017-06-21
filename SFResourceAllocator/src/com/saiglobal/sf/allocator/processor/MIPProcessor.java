@@ -198,7 +198,7 @@ public class MIPProcessor extends AbstractProcessor {
 				if (x[i][j].solutionValue()>0) {
 					logger.debug("Worker " + i + " assigned to task " + j);
 					if(i<resources.size())
-						totalCost += Utility.calculateAuditCost(resources.get(i), workItemListBatch.get(j), workItemListBatch.get(j), TravelCostCalculationType.EMPIRICAL_UK, db, false, true);
+						totalCost += Utility.calculateAuditCost(resources.get(i), workItemListBatch.get(j), workItemListBatch.get(j), TravelCostCalculationType.EMPIRICAL_UK, db, false, true, true);
 				}
 			}
 		}
@@ -273,7 +273,7 @@ public class MIPProcessor extends AbstractProcessor {
 		
 		for (int j = 0; j < workItemList.size(); j++) {
 			for (int i = 0; i < resources.size(); i++) {
-				costs[i][j] = Utility.calculateAuditCost(resources.get(i), workItemList.get(j), workItemList.get(j), TravelCostCalculationType.EMPIRICAL_UK, db, false, true);
+				costs[i][j] = Utility.calculateAuditCost(resources.get(i), workItemList.get(j), workItemList.get(j), TravelCostCalculationType.EMPIRICAL_UK, db, false, true, true);
 			}
 			costs[resources.size()][j] = 999999;
 		}

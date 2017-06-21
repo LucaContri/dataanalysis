@@ -4,13 +4,11 @@ package com.saiglobal.sf.allocator.processor;
  */
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -152,7 +150,7 @@ public class MIP4Processor extends AbstractProcessor {
 						if (x[i][j][jp][t] != null && x[i][j][jp][t].solutionValue()>0) {	
 							if(i<resources.size()) {
 								logger.debug(resources.get(i).getName() + " assigned to audit " + workItemListBatch.get(j).getName() + " to be performed on: " + Utility.getActivitydateformatter().format(getTimeFromSlot(t).getTime()) + (j==jp?"":(" as part of a milk run following audit" + workItemListBatch.get(jp).getName())));
-								totalCost += Utility.calculateAuditCost(resources.get(i), workItemListBatch.get(j), workItemListBatch.get(jp), travelCostCalculationType, db, (j!=jp || getFollowingAuditInMilkRun(j, x)==-1), jp==j);
+								totalCost += Utility.calculateAuditCost(resources.get(i), workItemListBatch.get(j), workItemListBatch.get(jp), travelCostCalculationType, db, (j!=jp || getFollowingAuditInMilkRun(j, x)==-1), jp==j, getFollowingAuditInMilkRun(j, x)==-1);
 							} else {
 								logger.debug("Audit " + workItemListBatch.get(j).getName() + " unallocated");
 								//totalCost += workItemListBatch.get(j).getCostOfNotAllocating();
@@ -165,7 +163,7 @@ public class MIP4Processor extends AbstractProcessor {
 		return totalCost;
 	}
 	
-	private SolverResult solve(int[][][][] constraints) throws Exception {
+	private SolverResult solve(boolean[][][][] constraints) throws Exception {
 		
 		boolean timeConstrained = true;
 		if(constraints[0][0][0].length==1)
@@ -185,7 +183,7 @@ public class MIP4Processor extends AbstractProcessor {
 			for (int j = 0; j < constraints[i].length; j++) {
 				for (int jp = 0; jp < constraints[i][j].length; jp++) {
 					for (int t = 0; t < constraints[i][j][jp].length; t++) {
-						if (constraints[i][j][jp][t]==1)
+						if (constraints[i][j][jp][t])
 							x[i][j][jp][t] = solver.makeIntVar(0, 1, "x["+i+","+j+","+jp+","+t+"]");
 					}
 				}
@@ -200,7 +198,7 @@ public class MIP4Processor extends AbstractProcessor {
 			for (int j = 0; j < constraints[i].length; j++) {
 				for (int jp = 0; jp < constraints[i][j].length; jp++) {
 					for (int t = 0; t < constraints[i][j][jp].length; t++) {
-						if (constraints[i][j][jp][t]==1) {
+						if (constraints[i][j][jp][t]) {
 							ct1.setCoefficient(x[i][j][jp][t], audit_duration[i][j][jp]);
 							
 							// If auditor i* performs audit j* preceded by audit jp* at time t*, then auditor i* has to perform audit jp* at time (t*-audit_duration[i][jp][jp2])
@@ -229,7 +227,7 @@ public class MIP4Processor extends AbstractProcessor {
 					MPConstraint ct = solver.makeConstraint(0, resource_availability[i][t]*timeSlothours);
 					for (int j = 0; j < constraints[i].length; j++) {
 						for (int jp = 0; jp < constraints[i][j].length; jp++) {
-							if (constraints[i][j][jp][t]==1)
+							if (constraints[i][j][jp][t])
 								ct.setCoefficient(x[i][j][jp][t], audit_duration[i][j][jp]);
 						}
 					}
@@ -242,7 +240,7 @@ public class MIP4Processor extends AbstractProcessor {
 				for (int j = 0; j < constraints[i].length; j++) {
 					for (int jp = 0; jp < constraints[i][j].length; jp++) {
 						for (int t = 0; t < constraints[i][j][jp].length; t++) {
-							if (constraints[i][j][jp][t]==1) {
+							if (constraints[i][j][jp][t]) {
 								// For each audit j preceded by audit jp starting at time t ...
 								int audit_duration_timeslots = (int) Math.ceil(audit_duration[i][j][jp]/timeSlothours);
 								// ... there are no other audit j2 starting at t+s; for each 0 < s < audit_duration_timeslots
@@ -252,7 +250,7 @@ public class MIP4Processor extends AbstractProcessor {
 									if (t+s<num_time_slots) {
 										for (int j2 = 0; j2 < constraints[i].length; j2++) {
 											for (int jp2 = 0; jp2 < constraints[i][j2].length; jp2++) {
-												if(j2!=j && constraints[i][j2][jp2][t+s]==1) {
+												if(j2!=j && constraints[i][j2][jp2][t+s]) {
 													ct.setCoefficient(x[i][j2][jp2][t+s], 1);
 												}
 											}
@@ -272,7 +270,7 @@ public class MIP4Processor extends AbstractProcessor {
 			for (int i = 0; i < constraints.length; i++) {
 				for (int jp = 0; jp < constraints[i][j].length; jp++) {
 					for (int t = 0; t < constraints[i][j][jp].length; t++) {
-						if (constraints[i][j][jp][t]==1)
+						if (constraints[i][j][jp][t])
 							ct.setCoefficient(x[i][j][jp][t], 1);
 					}
 				}
@@ -285,7 +283,7 @@ public class MIP4Processor extends AbstractProcessor {
 			for (int j = 0; j < constraints[i].length; j++) {
 				for (int jp = 0; jp < constraints[i][j].length; jp++) {
 					for (int t = 0; t < constraints[i][j][jp].length; t++) {
-						if (constraints[i][j][jp][t]==1)
+						if (constraints[i][j][jp][t])
 							objective.setCoefficient(x[i][j][jp][t], costs[i][j][jp]);
 					}
 				}
@@ -341,7 +339,7 @@ public class MIP4Processor extends AbstractProcessor {
 		audit_duration = getAuditDurationMatrix();
 	}
 	
-	private int[][][][] presolve() {
+	private boolean[][][][] presolve() {
 		/*
 		 * Presolving. The purpose of presolving, which takes place
 		 * before the tree search is started, is threefold: first, it reduces 
@@ -349,106 +347,112 @@ public class MIP4Processor extends AbstractProcessor {
 		 * such as redundant constraints or fixed variables.
 		 */
 
-		int[][][][] constraints = new int[num_auditors][num_audits][num_audits][num_time_slots];
+		boolean[][][][] constraints = new boolean[num_auditors][num_audits][num_audits][num_time_slots];
 		for (int i = 0; i < num_auditors; i++) {
 			for (int j = 0; j < num_audits; j++) {
 				boolean cannotPerform = (i<(num_auditors-1)) && !resources.get(i).canPerform(workItemListBatch.get(j));
 				for (int jp = 0; jp < num_audits; jp++) {
-					// Excludes auditors not capable of performing the audit
-					if(!parameters.isMilkRuns() && j!=jp) {
-						// If not doing milk runs excludes all j!=jp
-						for (int t = 0; t < num_time_slots; t++) {
-							constraints[i][j][jp][t] = 0;
-						}
-					} else {
+					boolean cannotPerformjp = (i<(num_auditors-1)) && !resources.get(i).canPerform(workItemListBatch.get(jp));
+					for (int t = 0; t < num_time_slots; t++) {
+						// Default
+						constraints[i][j][jp][t] = true;
+						
 						if (cannotPerform) {
-							for (int t = 0; t < num_time_slots; t++) {
-								constraints[i][j][jp][t] = 0;
-							}
-						} else {
-							boolean cannotPerformjp = (i<(num_auditors-1)) && !resources.get(i).canPerform(workItemListBatch.get(jp));
+							// Excludes auditors not capable of performing the audit
+							constraints[i][j][jp][t] = false;
+						}
+						if (cannotPerformjp) {
+							// Excludes auditors not capable of performing the previous audit
+							constraints[i][j][jp][t] = false;
+						}
+						
+						if(!cannotPerform && !cannotPerformjp && parameters.isMilkRuns()) {
 							boolean heuristicExcludeAsNotGoodCandidateForMilkRun = false;
-							
-							if(!cannotPerform) {
-								double distanceJToJp = Double.MAX_VALUE;
-								double distanceHomeToJ = Double.MAX_VALUE;
-								double distanceHomeToJp = Double.MAX_VALUE;
+							double distanceJToJp = Double.MAX_VALUE;
+							double distanceHomeToJ = Double.MAX_VALUE;
+							double distanceHomeToJp = Double.MAX_VALUE;
+							try {
+								distanceJToJp = Utility.calculateDistanceKm(workItemListBatch.get(j).getClientSite(), workItemListBatch.get(jp).getClientSite(), db);
+							} catch (Exception e) {
+								//Ignore.  Use default
+							}
+							try {
+								distanceHomeToJp = Utility.calculateDistanceKm(resources.get(i).getHome(), workItemListBatch.get(jp).getClientSite(), db);
+							} catch (Exception e) {
+								//Ignore.  Use default
+							}
+							if(distanceJToJp>=distanceHomeToJp) {
+								heuristicExcludeAsNotGoodCandidateForMilkRun = true;
+							} else {
 								try {
-									distanceJToJp = Utility.calculateDistanceKm(workItemListBatch.get(j).getClientSite(), workItemListBatch.get(jp).getClientSite(), db);
+									distanceHomeToJ = Utility.calculateDistanceKm(resources.get(i).getHome(), workItemListBatch.get(j).getClientSite(), db);
 								} catch (Exception e) {
 									//Ignore.  Use default
 								}
-								try {
-									distanceHomeToJp = Utility.calculateDistanceKm(resources.get(i).getHome(), workItemListBatch.get(jp).getClientSite(), db);
-								} catch (Exception e) {
-									//Ignore.  Use default
-								}
-								if(distanceJToJp>=distanceHomeToJp) {
+								double travelTime = Utility.calculateTravelTimeHrs(distanceHomeToJ, false);
+								if (travelTime==0 && j!=jp) {
+									// If travel time between auditor and audit is 0 (i.e. done within normal duty), the audit cannot be part of a milk run for this auditor at any time
 									heuristicExcludeAsNotGoodCandidateForMilkRun = true;
-								} else {
-									try {
-										distanceHomeToJ = Utility.calculateDistanceKm(resources.get(i).getHome(), workItemListBatch.get(j).getClientSite(), db);
-									} catch (Exception e) {
-										//Ignore.  Use default
-									}
-									double travelTime = Utility.calculateTravelTimeHrs(distanceHomeToJ, false);
-									if (travelTime==0 && j!=jp) {
-										// If travel time between auditor and audit is 0 (i.e. done within normal duty), the audit cannot be part of a milk run for this auditor at any time
-										heuristicExcludeAsNotGoodCandidateForMilkRun = true;
-									}
 								}
 							}
+							if (heuristicExcludeAsNotGoodCandidateForMilkRun) {
+								// Excludes auditors not capable of performing the previous audit or previous audit is not a good candidate for milk run
+								constraints[i][j][jp][t] = false;
+							}
+						}
+						
+						double jpMinDuration = Arrays.stream(audit_duration[i][jp]).min().orElse(0);
+								
+						if (i<num_auditors-1 
+							&& (
+								((t - (int) Math.ceil(jpMinDuration)/timeSlothours<0) && j!=jp)
+								|| (resource_availability[i][t]<Math.ceil(audit_duration[i][j][jp]/timeSlothours))
+								|| ((t - (int) Math.ceil(jpMinDuration))>=0 && (resource_availability[i][t - (int) Math.ceil(jpMinDuration)/timeSlothours]<Math.ceil(jpMinDuration/timeSlothours))) && j!=jp)) {
+							// Exclude not available dates either for audit j starting at t or preceding audit jp starting at (t - (int) Math.ceil(jpMinDuration)/timeSlothours) 
+							constraints[i][j][jp][t] = false;
 							
-							for (int t = 0; t < num_time_slots; t++) {
-								if (cannotPerformjp || heuristicExcludeAsNotGoodCandidateForMilkRun) {
-									// Excludes auditors not capable of performing the previous audit or previous audit is not a good candidate for milk run
-									constraints[i][j][jp][t] = 0;
-								} else {
-									double jpMinDuration = Arrays.stream(audit_duration[i][jp]).min().orElse(0);
-									
-									if (i<num_auditors-1 
-										&& (
-											(t - (int) Math.ceil(jpMinDuration)/timeSlothours<0)
-											|| (resource_availability[i][t]<Math.ceil(audit_duration[i][j][jp]/timeSlothours))
-											|| (resource_availability[i][t - (int) Math.ceil(jpMinDuration)/timeSlothours]<Math.ceil(jpMinDuration/timeSlothours)))) {
-										// Exclude not available dates either for audit j starting at t or preceding audit jp starting at (t - (int) Math.ceil(jpMinDuration)/timeSlothours) 
-										constraints[i][j][jp][t] = 0;
-									} else {
-										// Deafult
-										constraints[i][j][jp][t] = 1;
-									}
-								}
-							}
+						}
+					
+						// If not doing milk runs excludes all j!=jp
+						if(!parameters.isMilkRuns() && j!=jp) {
+							constraints[i][j][jp][t] = false;  
 						}
 					}
 				}
 			}
 		}
-		// TODO: Exclude assignments which will lead to auditor being away for longer than X days
 		return constraints;
+	}
+	
+	private boolean orArray(boolean[] a) {
+		for (boolean b : a) {
+			if(b)
+				return true;
+		}
+		return false;
 	}
 	
 	protected List<Schedule> scheduleBatch() throws Exception {
 		
 		initBatchVariables();		
 		
-		int[][][][] constraints = presolve();
+		boolean[][][][] constraints = presolve();
 		
 		// Solve relaxed problem excluding time slots constraints to find a lower bound (LB)
-		int[][][][] relaxedConstraints = new int[constraints.length][constraints[0].length][constraints[0][0].length][1];
+		boolean[][][][] relaxedConstraints = new boolean[constraints.length][constraints[0].length][constraints[0][0].length][1];
 		for (int i = 0; i < relaxedConstraints.length; i++) {
 			for (int j = 0; j < relaxedConstraints[i].length; j++) {
 				for (int jp = 0; jp < relaxedConstraints[i][j].length; jp++) {
-					if (Arrays.stream(constraints[i][j][jp]).sum()>0) 
-						relaxedConstraints[i][j][jp][0] = 1;
+					if (orArray(constraints[i][j][jp]))
+						relaxedConstraints[i][j][jp][0] = true;
 					else
-						relaxedConstraints[i][j][jp][0] = 0;
+						relaxedConstraints[i][j][jp][0] = false;
 				}
 			}
 		}
 		SolverResult srRelaxed = solve(relaxedConstraints);
 		ResultStatus resultStatusRelaxed = srRelaxed.getResultStatus();
-		MPVariable[][][][] xRelaxed = srRelaxed.getVariables();
+		//MPVariable[][][][] xRelaxed = srRelaxed.getVariables();
 		double lowerBound = -1;
 		
 		// Check that the problem has an optimal solution.
@@ -756,13 +760,8 @@ public class MIP4Processor extends AbstractProcessor {
 		for (int j = 0; j < workItemListBatch.size(); j++) {
 			for (int jp = 0; jp < workItemListBatch.size(); jp++) {
 				for (int i = 0; i < resources.size(); i++) {
-					double distance = Double.MAX_VALUE;
-					if (j==jp)
-						distance = Utility.calculateDistanceKm(workItemListBatch.get(j).getClientSite(), resources.get(i).getHome(), db);
-					else
-						distance = Utility.calculateDistanceKm(workItemListBatch.get(jp).getClientSite(), workItemListBatch.get(j).getClientSite(), db);
 					// At this point I do not know if the audit is the last in the milk run.  However, if we minimise the one way travel cost, we minimise the return travel cost.
-					costs[i][j][jp] = Utility.calculateAuditCost(resources.get(i).getType(), resources.get(i).getHourlyRate(), workItemListBatch.get(j).getRequiredDuration() + workItemListBatch.get(j).getLinkedWorkItems().stream().mapToInt(wi -> (int) Math.ceil(wi.getRequiredDuration())).sum(), distance, travelCostCalculationType,  true, jp==j, workItemListBatch.get(j).isPrimary());
+					costs[i][j][jp] = Utility.calculateAuditCost(resources.get(i), workItemListBatch.get(j), workItemListBatch.get(j),travelCostCalculationType, db, true, jp==j, false);
 				}
 				// Cost of not performing the audit
 				costs[resources.size()][j][jp] = workItemListBatch.get(j).getCostOfNotAllocating();
@@ -825,7 +824,7 @@ public class MIP4Processor extends AbstractProcessor {
 									schedule.setResourceType(resources.get(i).getType());
 									schedule.setStatus(ScheduleStatus.ALLOCATED);
 									schedule.setWorkItemGroup(getMilkRunId(j,x));
-									schedule.setTotalCost(Utility.calculateAuditCost(resources.get(i), workItemListBatch.get(j), workItemListBatch.get(jp), travelCostCalculationType, db, (j!=jp || getFollowingAuditInMilkRun(j, x)!=-1 ), j==jp));
+									schedule.setTotalCost(Utility.calculateAuditCost(resources.get(i), workItemListBatch.get(j), workItemListBatch.get(jp), travelCostCalculationType, db, (j!=jp || getFollowingAuditInMilkRun(j, x)!=-1 ), j==jp, getFollowingAuditInMilkRun(j, x)!=-1));
 									if (workItemListBatch.get(j).getServiceDeliveryType().equalsIgnoreCase("Off Site"))
 										schedule.setDistanceKm(0);
 									else
@@ -924,9 +923,8 @@ public class MIP4Processor extends AbstractProcessor {
 							
 							// Add unallocated only if needs to be logged.  Unallocated audits moved to next period are not logged to avoid duplications
 							if(workItemListBatch.get(j).isLog()) {
-								for (Schedule schedule : schedules) {
-									schedule.setTotalCost(workItemListBatch.get(j).getCostOfNotAllocating());
-								}
+								final int j1 = j;
+								schedules.stream().forEach(s -> s.setTotalCost(workItemListBatch.get(j1).getCostOfNotAllocating()));
 								returnSchedule.addAll(schedules);
 							}
 						}
