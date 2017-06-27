@@ -4,8 +4,13 @@ create index work_item_resource_wi_index on work_item_resource__c (Work_Item__c)
 
 # Woolworths Standards
 create or replace view Woolworths_Standards as
-select s.Name, s.Id from standard__c s
-where s.name like 'WQA%' or s.name like 'Woolworths%';
+select s.Name, s.Id from salesforce.standard__c s
+where 
+	s.name like 'WQA%' 
+    or s.name like '%Woolworths%' 
+    or s.Name like 'Endeavour Drinks Group Quality Standard%' ;
+
+select * from Woolworths_Standards;
 
 # Woolworths Products
 select p.Id, p.Name from Product2 p 
@@ -69,7 +74,7 @@ and scsp.Status__c not in ('De-registered','Concluded')
 and (scsf.IsDeleted=0 or scsf.IsDeleted is null)
 group by scsp.Id;
 
-select * from Woolworths_Client_List where `Site Certification` = 'C-199345';
+(select * from Woolworths_Client_List);
 
 select * from (
 select

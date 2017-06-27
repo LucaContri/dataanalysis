@@ -79,7 +79,7 @@ public class SICERecord {
 							(f.getMySQLType().contains("VARCHAR") || f.getMySQLType().contains("TEXT") || f.getMySQLType().contains("BLOB")?
 									("'"+values.get(f.getName()).toString().replace("\\", "\\\\").replace("'", "\\'")+"'"):
 									(f.getMySQLType().contains("DATETIME")?
-											("'"+Utility.getMysqldateformat().format((Date)values.get(f.getName()))+"'"):
+											("'"+Utility.getMysqlutcdateformat().format((Date)values.get(f.getName()))+"'"):
 											values.get(f.getName()).toString())))
 				.collect(Collectors.joining(", "))
 				+ ")";

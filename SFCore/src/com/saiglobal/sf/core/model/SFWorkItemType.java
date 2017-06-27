@@ -29,6 +29,7 @@ public enum SFWorkItemType {
 	Verification("Verification"),
 	WitnessAudit("Witness Audit"),
 	WitnessTesting("Witness Testing"),
+	UnannouncedCertification("Unannounced Certification"),
 	UnannouncedReCertification("Unannounced Re-Certification"),
 	UnannouncedSpecial("Unannounced Special"),
 	UnannouncedSurveillance("Unannounced Surveillance"),
