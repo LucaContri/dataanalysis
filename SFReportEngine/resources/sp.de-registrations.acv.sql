@@ -21,7 +21,7 @@ set lastUpdate = (select '1970-01-01');
 truncate analytics.audit_values;
 insert into analytics.audit_values 
 select t3.*,  ili.CurrencyIsoCode as 'Invoiced Currency', sum(if(ip.Category__c like 'Audit%', ili.Total_Line_Amount__c, null)) as 'Invoiced Amount - Audit', sum(if(ip.Category__c like 'Travel%', ili.Total_Line_Amount__c, null)) as 'Invoiced Amount - Travel', sum(ili.Total_Line_Amount__c) as 'Total Invoiced Amount' from
-(select t2.`Work Item Id`, t2.`CurrencyIsoCode` as 'Calculated Currency', sum(t2.`Quantity`*t2.`Effective Price`) as 'Calculated Value' from (
+(select t2.`Work Item Id`, t2.`Pricebook currency` as 'Calculated Currency', sum(t2.`Quantity`*t2.`Effective Price`) as 'Calculated Value' from (
 select t.* from (
 select 
 		wi.Id as 'Work Item Id',
@@ -30,6 +30,7 @@ select
         ps.Name as 'StandardName',
 		ps.Id as 'StandardId',
         if(ig.CurrencyIsoCode is null, sc.CurrencyIsoCode, ig.CurrencyIsoCode ) as 'CurrencyIsoCode',
+        pbe.CurrencyIsoCode as 'Pricebook currency',
         p.Id as 'Product Id',	
 		p.Name as 'Product',	
 		p.UOM__c as 'Unit',

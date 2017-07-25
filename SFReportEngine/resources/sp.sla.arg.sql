@@ -43,18 +43,18 @@ declare lastUpdate_arg_completion datetime;
 declare lastUpdate_arg_hold datetime;
 declare lastUpdate_arg_process datetime;
 set start_time = utc_timestamp();
-set lastUpdate_arg_submission = (select if(max(slaarg.`To`) is null, '1970-01-01',max(slaarg.`To`)) from analytics.sla_arg_v2 slaarg where `Metric` in ('ARG Submission - First','ARG Submission - Resubmission') );
-set lastUpdate_arg_revision = (select if(max(slaarg.`To`) is null, '1970-01-01',max(slaarg.`To`)) from analytics.sla_arg_v2 slaarg where `Metric` in ('ARG Revision - First','ARG Revision - Resubmission') and slaarg.`To` is not null );
-set lastUpdate_arg_completion = (select if(max(slaarg.`To`) is null, '1970-01-01',max(slaarg.`To`)) from analytics.sla_arg_v2 slaarg where `Metric` in ('ARG Completion/Hold') );
-set lastUpdate_arg_hold = (select if(max(slaarg.`To`) is null, '1970-01-01',max(slaarg.`To`)) from analytics.sla_arg_v2 slaarg where `Metric` in ('ARG Hold') );
-set lastUpdate_arg_process = (select if(max(slaarg.`To`) is null, '1970-01-01',max(slaarg.`To`)) from analytics.sla_arg_v2 slaarg where `Metric` in ('ARG Process Time (BRC)', 'ARG Process Time (Other)') );
+set lastUpdate_arg_submission = '1970-01-01'; #(select if(max(slaarg.`To`) is null, '1970-01-01',max(slaarg.`To`)) from analytics.sla_arg_v2 slaarg where `Metric` in ('ARG Submission - First','ARG Submission - Resubmission') );
+set lastUpdate_arg_revision = '1970-01-01'; #(select if(max(slaarg.`To`) is null, '1970-01-01',max(slaarg.`To`)) from analytics.sla_arg_v2 slaarg where `Metric` in ('ARG Revision - First','ARG Revision - Resubmission') and slaarg.`To` is not null );
+set lastUpdate_arg_completion = '1970-01-01'; #(select if(max(slaarg.`To`) is null, '1970-01-01',max(slaarg.`To`)) from analytics.sla_arg_v2 slaarg where `Metric` in ('ARG Completion/Hold') );
+set lastUpdate_arg_hold = '1970-01-01'; #(select if(max(slaarg.`To`) is null, '1970-01-01',max(slaarg.`To`)) from analytics.sla_arg_v2 slaarg where `Metric` in ('ARG Hold') );
+set lastUpdate_arg_process = '1970-01-01'; #(select if(max(slaarg.`To`) is null, '1970-01-01',max(slaarg.`To`)) from analytics.sla_arg_v2 slaarg where `Metric` in ('ARG Process Time (BRC)', 'ARG Process Time (Other)') );
 
 # Delete backlog as it is re-calculated every time
 SET SQL_SAFE_UPDATES = 0;
 
-insert into analytics.sla_arg_v2 
 # Auditor SLA - Performance
-
+drop temporary table if exists analytics.sla_arg_perf;
+create temporary table sla_arg_perf as
 # First Submission (For projects the From date is the project start date.  It excludes projects with null start date)
 (select 
 'ARG Submission - First' as 'Metric',
@@ -976,8 +976,11 @@ order by arg.Id, wi.Work_Item_Date__c desc) t
 group by t.RAudit_Report_Group__c);
 
 
-delete from analytics.sla_arg_v2 where `To` is null;
-insert into analytics.sla_arg_v2 select * from analytics.sla_arg_backlog;
+truncate analytics.sla_arg_v2;
+insert into analytics.sla_arg_v2 
+	select * from analytics.sla_arg_backlog 
+		union all 
+    select * from analytics.sla_arg_perf;
 
 insert into analytics.sp_log VALUES(null,'SlaUpdateArgV2',utc_timestamp(), timestampdiff(MICROSECOND, start_time, utc_timestamp()));
 
