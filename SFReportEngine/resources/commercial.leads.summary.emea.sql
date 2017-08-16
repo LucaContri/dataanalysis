@@ -5,16 +5,17 @@ set @period_1_end = (select @now);
 set @period_2_start = (select date_add(@now, interval -12 month));
 set @period_2_end = (select @now);
 
-select @period_1_start, @period_1_end, @period_2_start, @period_2_end;
 (select 
- if(rt.Name = ('Compliance Americas Lead Record Type'), 
-	if(l.Solution_Type__c = 'Learning', 'Learning', 'Risk'), 
-    if(rt.Name = 'AS-AMER', 'Assurance', 
-		if(rt.name in ('TIS - AMER - Lead (IH)', 'TIS - AMER - Lead (Marketing)', 'TIS - AMER - Lead (Public)', 'TIS - AMER - Lead (Web)'), 
-			'Learning',
-            if(rt.name in ('PUB-US', 'PUB-US-Marketing Leads'), 'Knowledge', '?')
+ if(rt.Name = 'AS-EMEA-Lead', 
+	'Assurance', # TODO Assurance Learning ???
+    if(rt.Name = 'Compliance EMEA Lead Record Type', 
+		if(l.Solution_Type__c = 'Learning', 'Learning', 'Risk'),
+		if(rt.name in ('PUB-UK', 'PUB-UK-Marketing Leads'), 
+			'Knowledge',
+            '?'
 		)
-    )) as 'Product Portfolio', 
+	)
+ ) as 'Product Portfolio', 
  rt.Name as 'Record Type', 
  ifnull(l.Solution_Type__c, '') as 'Solution Type',
  l.Id as 'Lead Id', 
@@ -29,56 +30,26 @@ select @period_1_start, @period_1_end, @period_2_start, @period_2_end;
  timestampdiff(day, l.CreatedDate, utc_timestamp()) as 'Ageing',
  if(timestampdiff(month, l.CreatedDate, utc_timestamp())>=4, '4+', timestampdiff(month, l.CreatedDate, utc_timestamp())) as 'Ageing (Month)',
  l.LeadSource as 'Source', 
- getLeadSourceCategorySimple(l.LeadSource) as 'Lead Source Category Simple',
- getLeadSourceCategory(l.LeadSource) as 'Lead Source Category',
+ analytics.getLeadSourceCategorySimple(l.LeadSource) as 'Lead Source Category Simple',
+ analytics.getLeadSourceCategory(l.LeadSource) as 'Lead Source Category',
  l.Status as 'Status', 
  analytics.getSimpleLeadStatusFromStatus(l.Status, l.IsConverted) as 'Status Simple',
  l.Area_s_of_Interest__c ,
  ifnull(o.Name, og.Name) as 'Owner', 
  m.Name as 'Manager',
  mm.Name as 'Manager\'s Manager',
-    l.Industry as 'Industry',
+ l.Industry as 'Industry',
  l.Industry_Vertical__c as 'Industry Vertical', 
  l.Program__c as 'Program',
  l.IsConverted,
- #if(opp.Id is not null,
- # if(opp.Stages__c like '%Won%',1,0),
- # if(l.IsConverted,
- #  if(rt.Name = 'TIS APAC Lead Record Type',1,
- #   if(group_concat(opp_acc.Stages__c) like '%Won%',1,0)
- #  ),
- #  0
- # )
- #) as 'HasGeneratedOpportunityWon',
  if(opp.Stages__c like '%Won%',1,
   if(rt.Name like 'TIS%' and r.Id is not null,1,0)
  ) as 'HasGeneratedOpportunityWon',
  if(opp.Stages__c like '%Lost%',1,0) as 'HasGeneratedOpportunityLost',
  l.ConvertedDate,
- #ifnull(
- # if(opp.Id is not null,
- #  if(opp.Stages__c like '%Won%',opp.CloseDate,''),
- #   if(l.IsConverted,
- #    if(rt.Name = 'TIS APAC Lead Record Type',l.ConvertedDate,
- #     if(group_concat(opp_acc.Stages__c) like '%Won%',min(if(opp_acc.Stages__c like '%Won%', opp_acc.CloseDate,null)),'')
- #   ),
- #  ''
- # )
- #),'') as 'Closed Won Date',
-    if(opp.Stages__c like '%Won%',opp.CloseDate,
+ if(opp.Stages__c like '%Won%',opp.CloseDate,
   ifnull(min(if(rt.Name = 'TIS APAC Lead Record Type' and r.Id is not null,r.CreatedDate ,null)),'')
     ) as 'Closed Won Date',
- #timestampdiff(day, l.ConvertedDate, 
- # if(opp.Id is not null,
- #  if(opp.Stages__c like '%Won%',opp.CloseDate,null),
- #  if(l.IsConverted,
- #   if(rt.Name = 'TIS APAC Lead Record Type',l.ConvertedDate,
- #    if(group_concat(opp_acc.Stages__c) like '%Won%',min(if(opp_acc.Stages__c like '%Won%', opp_acc.CloseDate,null)),null)
- #   ),
- #   null
- #  )
- # )
- #) as 'Converted To Won Days',
     timestampdiff(day, l.ConvertedDate, 
   if(opp.Stages__c like '%Won%',opp.CloseDate,
    min(if(rt.Name like 'TIS%' and r.Id is not null,r.CreatedDate ,null))
@@ -105,10 +76,6 @@ from training.lead l
 where 
  l.IsDeleted = 0 
  and (l.CreatedDate >= least(@period_1_start, @period_2_start) and l.CreatedDate <= greatest(@period_1_end, @period_2_end) )
- and rt.Name in ('Compliance Americas Lead Record Type', 'AS-AMER', 'TIS - AMER - Lead (IH)', 'TIS - AMER - Lead (Marketing)', 'TIS - AMER - Lead (Public)', 'TIS - AMER - Lead (Web)', 'PUB-US', 'PUB-US-Marketing Leads')
+ and rt.Name in ('AS-EMEA-Lead', 'Compliance EMEA Lead Record Type', 'PUB-UK', 'PUB-UK-Marketing Leads')
 group by l.Id
 );
-
-(select rt.name, date_format(l.createdDate, '%Y-%m') as 'Period', count(l.Id) 
-from training.lead l 
-inner join training.recordtype rt on l.RecordTypeId = rt.Id group by rt.Name, `Period`);

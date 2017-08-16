@@ -975,12 +975,14 @@ group by arg.Id, wi.Id
 order by arg.Id, wi.Work_Item_Date__c desc) t
 group by t.RAudit_Report_Group__c);
 
+# Update backlog
+delete from analytics.sla_arg_v2 where `to` is null;
+insert ignore into analytics.sla_arg_v2 
+	select * from analytics.sla_arg_backlog;
 
-truncate analytics.sla_arg_v2;
-insert into analytics.sla_arg_v2 
-	select * from analytics.sla_arg_backlog 
-		union all 
-    select * from analytics.sla_arg_perf;
+# Update performance
+insert ignore into analytics.sla_arg_v2 
+	select * from analytics.sla_arg_perf;
 
 insert into analytics.sp_log VALUES(null,'SlaUpdateArgV2',utc_timestamp(), timestampdiff(MICROSECOND, start_time, utc_timestamp()));
 
@@ -998,6 +1000,17 @@ CREATE EVENT SlaUpdateEventArgV2
 use analytics;
 select *, exec_microseconds/1000000 from analytics.sp_log where sp_name='SlaUpdateArgV2' order by exec_time desc limit 10;
 
+select * from analytics.sla_arg_v2 
+where `From` > date_add(utc_timestamp(), interval -10 minute) or 
+`To` > date_add(utc_timestamp(), interval -10 minute) ;
+
 select count(*) from analytics.sla_arg_v2 ;
 
 select distinct Metric from analytics.sla_arg_v2;
+
+(select t.* from (
+	select Id, Name, Metric, count(Id) as 'Count' from analytics.sla_arg_v2 arg group by arg.Metric, arg.Id, arg.`From`
+    ) t where t.`Count`>1);
+    
+    
+select * from analytics.sla_arg_v2 where `from` is null

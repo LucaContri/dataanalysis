@@ -22,22 +22,24 @@ public void execute(HashMap<String, Object> values) throws Exception {
   }
   }
   if (values.get("Actual Resource Distance") != null)
-  values.put("Actual Resource Travel Duration", Math.min(Utility.calculateTravelTimeHrs(((double) values.get("Actual Resource Distance"))),8));
+  values.put("Actual Resource Travel Duration", Math.min(Utility.calculateTravelTimeHrs(((double) values.get("Actual Resource Distance")), true),8));
  }
  if(values.get("Actual Resource Id") != null && values.get("Actual Resource Distance") != null)
   values.put("Actual Resource Calculated Cost", Utility.calculateAuditCost(
    SfResourceType.getValueForName((String) values.get("Actual Resource Type")),
    (double) values.get("Actual Resource Hourly Rate"),
    (double) values.get("Required Duration"),
+   values.get("Actual Resource Distance")==null?0:((double) values.get("Actual Resource Distance"))/2,
    (double) values.get("Actual Resource Distance"),
-   TravelCostCalculationType.EMPIRICAL_UK));
+   TravelCostCalculationType.EMPIRICAL_UK,false,true,true));
  if(values.get("Allocator Resource Id") != null && values.get("Allocator Resource Distance") != null)
   values.put("Allocator Resource Calculated Cost", Utility.calculateAuditCost(
    SfResourceType.getValueForName((String) values.get("Allocator Resource Type")),
    (double) values.get("Allocator Resource Hourly Rate"),
    (double) values.get("Required Duration"),
+   values.get("Actual Resource Distance")==null?0:((double) values.get("Actual Resource Distance"))/2,
    (double) values.get("Allocator Resource Distance"),
-   TravelCostCalculationType.EMPIRICAL_UK));
+   TravelCostCalculationType.EMPIRICAL_UK,false,true,true));
  if(values.get("Actual Resource Id") != null) {
   values.put("Resource Id", values.get("Actual Resource Id"));
   values.put("Resource Name", values.get("Actual Resource Name"));

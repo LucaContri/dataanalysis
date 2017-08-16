@@ -54,9 +54,9 @@ public class StandardReportFromExcelTemplate extends AbstractQueryReport {
 	protected void initialiseQuery() throws Throwable {
 		if (this.initStmt != null) {
 			for (String subStatement : this.initStmt.split(";")) {
-				if(!subStatement.equalsIgnoreCase("")) {
-					st.execute(subStatement);
-					logger.info("Executing: " + subStatement);
+				if(!subStatement.trim().equalsIgnoreCase("")) {
+					st.execute(subStatement.trim());
+					logger.info("Executing: " + subStatement.trim());
 				}
 			}
 		}
