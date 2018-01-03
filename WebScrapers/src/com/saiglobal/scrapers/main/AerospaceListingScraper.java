@@ -16,7 +16,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.saiglobal.scrapers.model.AccrediaCertifiedOrganisation;
-import com.saiglobal.scrapers.model.CertifiedOrganisation;
+import com.saiglobal.scrapers.model.CertifiedOrganisationOld;
 import com.saiglobal.sf.core.data.DbHelperDataSource;
 import com.saiglobal.sf.core.utility.GlobalProperties;
 import com.saiglobal.sf.core.utility.Utility;

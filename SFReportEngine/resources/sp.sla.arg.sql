@@ -93,7 +93,7 @@ getARGProcessTags(
             group_concat(distinct if(scspf.IsDeleted or spf.isDeleted, null,spf.Standard_Service_Type_Name__c) separator ','),
             author.Reporting_Business_Units__c,
             group_concat(distinct wi.Work_Item_Stage__c)) as 'Tags',
-            (select count(Id) from analytics.sla_arg_v2 sla_arg where sla_arg.Id=arg.Id and sla_arg.`Metric`='ARG Submission - First') as 'Already measured first submission',
+            #(select count(Id) from analytics.sla_arg_v2 sla_arg where sla_arg.Id=arg.Id and sla_arg.`Metric`='ARG Submission - First') as 'Already measured first submission',
             p.Business_Line__c as 'Business Line',
             p.Pathway__c as 'Pathway',
             p.Name as 'Program',
@@ -117,7 +117,7 @@ where
 and arg.IsDeleted = 0
 group by arg.Id, wi.Id
 order by argwi.RAudit_Report_Group__c, wi.End_Service_Date__c desc) t
-where t.`Already measured first submission`=0
+#where t.`Already measured first submission`=0
 group by t.RAudit_Report_Group__c) t2
 where (t2.Project_Start_Date__c is not null or t2.End_Service_Date__c is not null))
 # Waiting for client
@@ -474,8 +474,8 @@ getARGProcessTags(
             p.Pathway__c as 'Pathway',
             p.Name as 'Program',
             wi.Client_Name_No_Hyperlink__c as 'Client',
-            wi.Work_Item_Stage__c as 'WI Type',
-(select count(Id) from analytics.sla_arg_v2 sla_arg where sla_arg.Id=arg.Id and sla_arg.`Metric`='ARG Completion/Hold') as 'Already measured hold'
+            wi.Work_Item_Stage__c as 'WI Type'
+#(select count(Id) from analytics.sla_arg_v2 sla_arg where sla_arg.Id=arg.Id and sla_arg.`Metric`='ARG Completion/Hold') as 'Already measured hold'
 from salesforce.approval_history__c ah 
 inner join salesforce.audit_report_group__c arg on ah.RAudit_Report_Group__c = arg.Id
 left join salesforce.resource__c admin on arg.Assigned_Admin__c = admin.Id
@@ -496,7 +496,7 @@ and arg.IsDeleted = 0
 and ((ah.Comments__c not like '%Auto Approved%' and ah.Comments__c not like '%Auto-Approved%' and ah.Comments__c not like '%Forced to Completed%') or ah.Comments__c  is null)
 group by arg.Id, ah.Id
 order by argwi.RAudit_Report_Group__c, ah.CreatedDate asc) t
-where t.`Already measured hold`=0
+#where t.`Already measured hold`=0
 group by t.RAudit_Report_Group__c) t2)
 union
 # ARG Admin Performance form Hold to Completed
@@ -605,8 +605,8 @@ getARGProcessTags(
             p.Pathway__c as 'Pathway',
             p.Name as 'Program',
             wi.Client_Name_No_Hyperlink__c as 'Client',
-            wi.Work_Item_Stage__c as 'WI Type',
-            (select count(Id) from analytics.sla_arg_v2 sla_arg where sla_arg.Id=arg.Id and sla_arg.`Metric` in ('ARG Process Time (BRC)', 'ARG Process Time (Other)')) as 'Already measured'
+            wi.Work_Item_Stage__c as 'WI Type'
+            #(select count(Id) from analytics.sla_arg_v2 sla_arg where sla_arg.Id=arg.Id and sla_arg.`Metric` in ('ARG Process Time (BRC)', 'ARG Process Time (Other)')) as 'Already measured'
 from salesforce.approval_history__c ah 
 inner join salesforce.audit_report_group__c arg on ah.RAudit_Report_Group__c = arg.Id
 left join salesforce.resource__c admin on arg.Assigned_Admin__c = admin.Id
@@ -628,7 +628,7 @@ and arg.IsDeleted = 0
 #and (arg.Work_Item_Stages__c not like '%Initial Project%' and arg.Work_Item_Stages__c not like '%Product Update%' and arg.Work_Item_Stages__c not like '%Standard Change%')
 group by arg.Id, wi.Id, ah.Id
 order by argwi.RAudit_Report_Group__c, ah.CreatedDate asc) t
-where t.`Already measured`=0
+#where t.`Already measured`=0
 group by t.RAudit_Report_Group__c) t2);
 
 drop temporary table if exists analytics.sla_arg_backlog;
@@ -975,14 +975,19 @@ group by arg.Id, wi.Id
 order by arg.Id, wi.Work_Item_Date__c desc) t
 group by t.RAudit_Report_Group__c);
 
-# Update backlog
-delete from analytics.sla_arg_v2 where `to` is null;
+set start_time = utc_timestamp();
+
+start transaction;
+delete from analytics.sla_arg_v2 where `To` is null;
 insert ignore into analytics.sla_arg_v2 
 	select * from analytics.sla_arg_backlog;
+commit;
 
-# Update performance
+start transaction;
+delete from analytics.sla_arg_v2 where `To` is not null;
 insert ignore into analytics.sla_arg_v2 
 	select * from analytics.sla_arg_perf;
+commit;
 
 insert into analytics.sp_log VALUES(null,'SlaUpdateArgV2',utc_timestamp(), timestampdiff(MICROSECOND, start_time, utc_timestamp()));
 
@@ -993,24 +998,23 @@ select count(*) from analytics.sla_arg_v2;
 truncate analytics.sla_arg_v2;
 call SlaUpdateArgV2();
 
+show events;
 drop event SlaUpdateEventArgV2;
 CREATE EVENT SlaUpdateEventArgV2
     ON SCHEDULE EVERY 10 minute DO 
 		call SlaUpdateArgV2();
 use analytics;
-select *, exec_microseconds/1000000 from analytics.sp_log where sp_name='SlaUpdateArgV2' order by exec_time desc limit 10;
+select *, exec_microseconds/1000000 from analytics.sp_log where sp_name='SlaUpdateArgV2' order by exec_time desc limit 100 ;
 
-select * from analytics.sla_arg_v2 
-where `From` > date_add(utc_timestamp(), interval -10 minute) or 
-`To` > date_add(utc_timestamp(), interval -10 minute) ;
+select * from salesforce.sf_tables where TableName in ('Audit_Report_Group__c', 'ARG_Work_Item__c') and Id in (17, 51);
+select count(*) from salesforce.arg_work_item__c where IsDeleted = 0 ; #149689 vs 150642
+select count(*) from salesforce.audit_report_group__c where IsDeleted = 0 ; #125341 vs 124778
+
+update salesforce.sf_tables set LastSyncDate='1970-01-01' where TableName in ('Audit_Report_Group__c', 'ARG_Work_Item__c') and Id in (17, 51);
+
 
 select count(*) from analytics.sla_arg_v2 ;
 
 select distinct Metric from analytics.sla_arg_v2;
 
-(select t.* from (
-	select Id, Name, Metric, count(Id) as 'Count' from analytics.sla_arg_v2 arg group by arg.Metric, arg.Id, arg.`From`
-    ) t where t.`Count`>1);
-    
-    
-select * from analytics.sla_arg_v2 where `from` is null
+delete from analytics.email_queue where is_sent=0 and id =141170;

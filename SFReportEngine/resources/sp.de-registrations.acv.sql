@@ -205,7 +205,7 @@ insert into analytics.sp_log VALUES(null,'DeRegistrationACVUpdate',utc_timestamp
 
  END //
 DELIMITER ;
-
+use analytics;
 drop event DeRegistrationACVUpdateEvent;
 CREATE EVENT DeRegistrationACVUpdateEvent
     ON SCHEDULE EVERY 6 hour DO 
@@ -226,4 +226,19 @@ left join salesforce.certification_standard_program__c csp on scsp.Certification
 where `De-Registered Date` >= '2016-01-01'
 and analytics.getCountryFromRevenueOwnership(d.`Revenue Ownership`) = 'Australia');
 
-select Id, scsp.De_register_Effective_Date__c  from salesforce.certification_standard_program__c scsp where scsp.De_register_Effective_Date__c is not null
+select Id, scsp.De_register_Effective_Date__c  from salesforce.certification_standard_program__c scsp where scsp.De_register_Effective_Date__c is not null;
+
+drop table sla_sales_leadoppfollowup_backlog;
+drop table sla_sales_proposalcr_backlog;
+drop table sla_sales_qualifylead_backlog;
+drop table sla_sales_risk_assessment_backlog;
+
+drop event SlaUpdateEventSalesLeadOppFollowUpBacklog;
+drop event SlaUpdateEventSalesProposalAndCRBacklog;
+drop event SlaUpdateEventSalesProposalAndCRCompleted;
+drop event SlaUpdateEventSalesQualifyLeadBacklog;
+drop event SlaUpdateEventSalesRiskAssessmentBacklog;
+
+drop view salesforce.sales_pipeline_certification_australia;
+drop view salesforce.sales_pipeline_certification_australia_sub;
+drop view salesforce.sales_pipeline_metrics;

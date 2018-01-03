@@ -2,6 +2,7 @@ package com.saiglobal.sf.core.model;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -56,7 +57,7 @@ public class WorkItem extends GenericSfObject implements Comparable<WorkItem> {
 	private WorkItemSource workItemSource = WorkItemSource.COMPASS_PIPELINE;
 	private double costOfNotAllocating = 0;
 	
-	public WorkItem(ResultSet rs, DbHelper db) throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException, GeoCodeApiException {
+	public WorkItem(ResultSet rs, DbHelper db) throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException, GeoCodeApiException, ParseException {
 		setId(rs.getString("wi_id"));
 		setName(rs.getString("wi_name"));
 		setWorkItemSource(WorkItemSource.COMPASS_WORK_ITEM);
@@ -105,6 +106,16 @@ public class WorkItem extends GenericSfObject implements Comparable<WorkItem> {
 		this.siteCertification = new Certification();
 		this.siteCertification.setId(rs.getString("sc_id"));
 		this.siteCertification.setName(rs.getString("sc_name"));
+		this.siteCertification.bops = new ArrayList<BlackoutPeriod>();
+		if(rs.getString("bops")!=null) {
+			String[] bopsArray = rs.getString("bops").split(",");
+			for (int i = 0; i < bopsArray.length; i++) {
+				String[] bopParts = bopsArray[i].split(";");
+				if(bopParts.length==2) {
+					this.siteCertification.bops.add(new BlackoutPeriod(bopParts[0], bopParts[1]));
+				} 
+			}
+		}
 		this.client = new Client();
 		this.client.setName(rs.getString("client_name"));
 		this.client.setId(rs.getString("client_id"));
@@ -580,5 +591,4 @@ public class WorkItem extends GenericSfObject implements Comparable<WorkItem> {
 	public void setLog(boolean log) {
 		this.log = log;
 	}
-	
 }

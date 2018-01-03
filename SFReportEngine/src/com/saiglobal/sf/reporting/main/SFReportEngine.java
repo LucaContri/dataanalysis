@@ -57,6 +57,8 @@ public class SFReportEngine {
 				properties.setReportBuilderClass(commandLine.getOptionValue("rb"));
 			if (commandLine.hasOption("re")) 
 				properties.setReportEmails(commandLine.getOptionValue("re"));
+			if (commandLine.hasOption("rf")) 
+				properties.setReportFolder(commandLine.getOptionValue("rf"));
 			if (commandLine.hasOption("rsftp")) 
 				properties.setSftpDetails(commandLine.getOptionValue("rsftp"));
 			if (commandLine.hasOption("rff")) 
@@ -96,6 +98,7 @@ public class SFReportEngine {
 		gnuOptions
 		.addOption("rb", "report-builder", true, "Enter the report builder class")
 		.addOption("re", "report-emails", true, "Enter the email address to send the report to (comma separated")
+		.addOption("rf", "report-folder", true, "Enter the folder to save the report to")
 		.addOption("rsftp", "report-sftp", true, "SFTP Details for upload (comma separated server,user,password")
 		.addOption("rff", "report-file-format", true, "Enter the file format for the report (csv, pdf, xlsx)")
 		.addOption("itin", "Include-time-in-name", true, "Include date/time in the file name")

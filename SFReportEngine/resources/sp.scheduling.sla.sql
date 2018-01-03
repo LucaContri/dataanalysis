@@ -13,6 +13,7 @@ set start_time = utc_timestamp();
  truncate sla_scheduling_backlog;
  #insert new data
 insert into sla_scheduling_backlog (
+#create table sla_scheduling_backlog  as (
 select t3.* from (
 select 
 t2.Scheduling_Ownership__c as 'Region',

@@ -16,7 +16,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import com.saiglobal.scrapers.model.CertifiedOrganisation;
+import com.saiglobal.scrapers.model.CertifiedOrganisationOld;
 import com.saiglobal.sf.core.data.DbHelperDataSource;
 import com.saiglobal.sf.core.utility.GlobalProperties;
 import com.saiglobal.sf.core.utility.Utility;
@@ -91,7 +91,7 @@ public class JASANZDetailsScraper {
 	}
 	
 	public static void updateJASANZDetails(String Id) throws Exception {
-		CertifiedOrganisation co = getCertifiedOrganisationDetails(Id);
+		CertifiedOrganisationOld co = getCertifiedOrganisationDetails(Id);
 		
 		if (co != null) {
 			// Track history fields
@@ -181,8 +181,8 @@ public class JASANZDetailsScraper {
 		return "'" + i.toString().replace("\\","").replace("'", "\\'") + "'";
 	}
 	
-	private static CertifiedOrganisation getCertifiedOrganisationDetails(String id) throws Exception {
-		CertifiedOrganisation co = new CertifiedOrganisation();
+	private static CertifiedOrganisationOld getCertifiedOrganisationDetails(String id) throws Exception {
+		CertifiedOrganisationOld co = new CertifiedOrganisationOld();
 		URL address = new URL(search_page + "/" + id);
 		Document doc = null;
 		try {

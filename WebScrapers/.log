@@ -1,0 +1,21 @@
+Thu 21 Dec 2017 14:49:17 ERROR Utility:1145 - Exception in scraper: null
+java.lang.NullPointerException
+	at java.lang.Class.forName0(Native Method)
+	at java.lang.Class.forName(Class.java:264)
+	at com.saiglobal.scrapers.main.CertifiedOrganisationScraper.main(CertifiedOrganisationScraper.java:95)
+Thu 21 Dec 2017 14:50:26 ERROR Utility:1145 - Exception in scraper: null
+java.lang.Exception: Missing Processor Class.  Please specify as Command Line Parameter -p ...
+	at com.saiglobal.scrapers.main.CertifiedOrganisationScraper.main(CertifiedOrganisationScraper.java:96)
+Thu 21 Dec 2017 14:51:22 ERROR Utility:1145 - Exception in scraper: com.saiglobal.scrapers.processors.JASANZProcessor
+java.lang.ClassNotFoundException: com.saiglobal.scrapers.processors.JASANZProcessor
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:381)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:424)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:331)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:357)
+	at java.lang.Class.forName0(Native Method)
+	at java.lang.Class.forName(Class.java:264)
+	at com.saiglobal.scrapers.main.CertifiedOrganisationScraper.main(CertifiedOrganisationScraper.java:97)
+Thu 21 Dec 2017 14:52:53 ERROR Utility:1145 - Exception in scraper: com.saiglobal.scrapers.processors.JASANZProcessor
+java.lang.NullPointerException
+	at com.saiglobal.scrapers.main.CertifiedOrganisationScraper.main(CertifiedOrganisationScraper.java:102)
+Thu 21 Dec 2017 14:56:47  INFO saiglobal:105 - Starting SAI global - Certified Organisation Scraper - com.saiglobal.scrapers.processors.JASANZProcessor

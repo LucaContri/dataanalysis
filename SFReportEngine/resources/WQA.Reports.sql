@@ -349,15 +349,32 @@ ili.Revenue_Ownership__c as 'Revenue Ownership',
 ili.Total_Line_Amount__c as 'Total Amount Ex Tax', 
 ili.CurrencyIsoCode, 
 p.Name as 'Product Name',
+ifnull(wi.Primary_Standard__c ,s.Name) as 'Standard',
 ili.Product_Category__c as 'Product Category', 
-if (p.Name like 'WQA%', 1,0) as 'WQA Revenue'
+if (ifnull(wi.Primary_Standard__c ,s.Name) like 'Endeavour Drinks Group Quality Standard%' 
+	or ifnull(wi.Primary_Standard__c ,s.Name) like '%Woolworth%' 
+    or ifnull(wi.Primary_Standard__c ,s.Name) like '%WQA%', 1,0) as 'WQA Revenue'
 from invoice__c i
-inner join Invoice_Line_Item__c ili on ili.invoice__c = i.Id
-inner join product2 p on ili.Product__c = p.Id
-inner join account c on c.Id = i.Billing_Client__c
+inner join salesforce.Invoice_Line_Item__c ili on ili.invoice__c = i.Id
+left join salesforce.work_item__c wi on ili.Work_Item__c = wi.Id
+inner join salesforce.product2 p on ili.Product__c = p.Id
+left join salesforce.standard__c s on p.Standard__c = s.Id
+inner join salesforce.account c on c.Id = i.Billing_Client__c
 where 
 i.Billing_Client__c in (select wcl.`Client Id` from Woolworths_Client_List wcl)
 and i.Status__c not in ('Cancelled')
 and i.IsDeleted=0
 and ili.IsDeleted=0
 and p.IsDeleted=0;
+
+select p.Id, p.NAme,s.NAme from salesforce.product2 p
+inner join salesforce.standard__c s on p.Standard__c = s.Id
+where s.NAme like '%Woolworths%' ;
+
+select wi.Id, ili.Id, ili.Name, ili.Invoice__c ,p.Name, s.Name, i.Status__c
+from salesforce.invoice_line_item__c ili
+inner join salesforce.invoice__c i on ili.Invoice__c = i.Id
+inner join salesforce.product2 p on ili.Product__c = p.Id
+inner join salesforce.standard__c s on p.Standard__c = s.Id
+inner join salesforce.work_item__c wi on ili.Work_Item__c = wi.Id
+where wi.Primary_Standard__c like 'Endeavour Drinks Group Quality%'

@@ -1441,4 +1441,20 @@ public static void sftp(String server, int port, String userName, String passwor
 		
 		return returnDistance?travelTime:travelTime/2;
 	}
+	
+	public static String clean(Object i) {
+		if (i==null)
+			return "null";
+		if ((i instanceof Integer) || ((i instanceof Double)) || (i instanceof Float))
+			return i.toString();
+		if (i instanceof Calendar)
+			return "'" + mysqlUtcDateFormat.format(((Calendar)i).getTime()) + "'";
+		if(i instanceof String) {
+			if (((String)i).equalsIgnoreCase(""))
+				return "null";
+			else
+				return "'" + ((String)i).replace("\\","").replace("'", "\\'").trim() + "'";
+		}
+		return "'" + i.toString().replace("\\","").replace("'", "\\'") + "'";
+	}
 }

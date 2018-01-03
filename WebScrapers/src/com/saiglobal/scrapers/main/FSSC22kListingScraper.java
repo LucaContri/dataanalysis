@@ -18,7 +18,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.saiglobal.scrapers.model.CertifiedOrganisation;
+import com.saiglobal.scrapers.model.CertifiedOrganisationOld;
 import com.saiglobal.sf.core.data.DbHelperDataSource;
 import com.saiglobal.sf.core.utility.GlobalProperties;
 import com.saiglobal.sf.core.utility.Utility;
@@ -51,9 +51,9 @@ public class FSSC22kListingScraper {
 
 		try {
 			List<String> notNoBeDeletedId = new ArrayList<String>();
-			List<CertifiedOrganisation> scraped = null;
+			List<CertifiedOrganisationOld> scraped = null;
 			while ((scraped = scrapeCertifiedOrganisations()) != null) {
-				for (CertifiedOrganisation co : scraped) {
+				for (CertifiedOrganisationOld co : scraped) {
 					// Update database
 					updateDb(co);
 					// Remove not to be deleted
@@ -71,7 +71,7 @@ public class FSSC22kListingScraper {
 				Utility.releaseLock(lockName);
 		}
 	}
-	private static void updateDb(CertifiedOrganisation co) throws ClassNotFoundException, IllegalAccessException, InstantiationException, SQLException {
+	private static void updateDb(CertifiedOrganisationOld co) throws ClassNotFoundException, IllegalAccessException, InstantiationException, SQLException {
 		String update = "insert into fssc22000_certified_organisations values ("
 				+ clean(co.getId()) 
 				+ ", " + clean(co.getName())
@@ -146,10 +146,10 @@ public class FSSC22kListingScraper {
 		return retValue;
 	}
 	
-	private static List<CertifiedOrganisation> scrapeCertifiedOrganisations() throws Exception {
+	private static List<CertifiedOrganisationOld> scrapeCertifiedOrganisations() throws Exception {
 		if(search_page==null)
 			return null;
-		List<CertifiedOrganisation> retValue = new ArrayList<CertifiedOrganisation>();
+		List<CertifiedOrganisationOld> retValue = new ArrayList<CertifiedOrganisationOld>();
 		URL address = new URL(search_page);
 		Document doc = null;
 		doc = getPage(address.toString());
@@ -169,7 +169,7 @@ public class FSSC22kListingScraper {
 					while (rowsIterator.hasNext()) {
 						Elements fields = rowsIterator.next().getElementsByTag("td");
 						if (fields != null && fields.size()==12) {
-							CertifiedOrganisation co = new CertifiedOrganisation();
+							CertifiedOrganisationOld co = new CertifiedOrganisationOld();
 							co.setName(fields.get(0).text());
 							co.setAddress(fields.get(1).text());
 							co.setCity(fields.get(2).text());

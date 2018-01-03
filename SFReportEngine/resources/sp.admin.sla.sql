@@ -17,7 +17,8 @@ CREATE PROCEDURE analytics.SlaUpdateAdminNewBusiness()
  'New Business Setup' as 'Activity',
  o.Business_1__c as 'Region',
  sites.Time_Zone__c as 'TimeZone',
- if(group_concat(distinct if(oli.IsDeleted=0,p.Business_Line__c, null) separator ';') like '%Food%', 'Food', 'MS') as 'Details',
+ if(group_concat(distinct if(oli.IsDeleted=0,p.Business_Line__c, null) separator ';') like '%Food%', 'Food', 
+	if(group_concat(distinct if(oli.IsDeleted=0,p.Business_Line__c, null) separator ';') like '%Product%', 'PS', 'MS')) as 'Details',
  'AS NewBus-01' as 'Enlighten Activity Code',
  'Opportunity' as 'Id Type',
  o.Id as 'Id',
@@ -47,49 +48,51 @@ left join salesforce.standard__c s on oli.Standard__c = s.Id
 left join salesforce.program__c p on s.Program__c = p.Id
 WHERE 
 o.IsDeleted = 0 
-AND o.Business_1__c NOT IN ('Product Services')
+#AND o.Business_1__c NOT IN ('Product Services')
 AND o.StageName = 'Closed Won' 
 AND ((oh.Field = 'StageName' AND oh.NewValue = 'Closed Won') OR (oh.Field = 'Manual_Certification_Finalised__c' AND oh.NewValue = 'true') OR (oh.Field = 'Delivery_Strategy_Created__c')) 
 #AND o.Type like 'New%'
 GROUP BY o.id
-) union (
-SELECT 
-if(o.StageName = 'Negotiation/Review' and t.Id is not null, 'Commercial', 'Admin') as 'Team', 
- 'New Business Setup' as 'Activity',
- o.Business_1__c as 'Region',
- sites.Time_Zone__c as 'TimeZone',
- 'PS' as 'Details',
- 'AS NewBus-01' as 'Enlighten Activity Code',
- 'Opportunity' as 'Id Type',
- o.Id as 'Id',
-  o.Quote_Ref__c as 'Name',
- max(if(oh.Field = 'StageName' and oh.NewValue = 'Closed Won', u.Name, null)) as 'Owner',
- 'Opportunity Won' as 'Aging Type',
- MAX(if (oh.NewValue='Negotiation/Review', oh.createdDate, null)) as 'From',
- getSLADueUTCTimestamp(
-	max(if (oh.Field = 'StageName' AND oh.NewValue = 'Negotiation/Review', oh.createdDate, null)),
-    replace(min(if (sites.Finance_Statement_Site__c=1,concat('1-',sites.Time_Zone__c),sites.Time_Zone__c)),'1-',''),
-    sla_business_days) as `SLA Due`,
- if(max(IF(oh.NewValue = 'Closed Won', oh.createdDate, NULL)) is not null,
-	max(IF(oh.NewValue = 'Closed Won', oh.createdDate, NULL)),
-	null
-)  AS 'To',
-group_concat(distinct if(oli.IsDeleted=0,s.Name, null) separator ';') as 'Tags'
-FROM 
-salesforce.opportunity o 
-left join salesforce.task t on t.WhatId = o.Id and t.RecordTypeId = '012d0000001clmNAAQ' and t.Status not in ('Completed')
-INNER JOIN salesforce.account a on o.AccountId = a.Id
-INNER JOIN salesforce.account sites on sites.ParentId = a.Id
-LEFT JOIN salesforce.opportunityfieldhistory oh ON oh.OpportunityId = o.id 
-LEFT JOIN salesforce.user u on oh.CreatedById = u.Id
-left join salesforce.opportunitylineitem oli on oli.OpportunityId = o.Id
-left join salesforce.standard__c s on oli.Standard__c = s.Id
-WHERE 
-o.IsDeleted = 0 
-AND o.Business_1__c IN ('Product Services') 
-AND o.StageName in ('Closed Won', 'Negotiation/Review') 
-AND (oh.Field = 'StageName' AND oh.NewValue IN ('Closed Won' , 'Negotiation/Review'))
-GROUP BY o.id)) t 
+)
+# union (
+#SELECT 
+#if(o.StageName = 'Negotiation/Review' and t.Id is not null, 'Commercial', 'Admin') as 'Team', 
+# 'New Business Setup' as 'Activity',
+# o.Business_1__c as 'Region',
+# sites.Time_Zone__c as 'TimeZone',
+# 'PS' as 'Details',
+# 'AS NewBus-01' as 'Enlighten Activity Code',
+# 'Opportunity' as 'Id Type',
+# o.Id as 'Id',
+#  o.Quote_Ref__c as 'Name',
+# max(if(oh.Field = 'StageName' and oh.NewValue = 'Closed Won', u.Name, null)) as 'Owner',
+# 'Opportunity Won' as 'Aging Type',
+# MAX(if (oh.NewValue='Negotiation/Review', oh.createdDate, null)) as 'From',
+# getSLADueUTCTimestamp(
+#	max(if (oh.Field = 'StageName' AND oh.NewValue = 'Negotiation/Review', oh.createdDate, null)),
+#    replace(min(if (sites.Finance_Statement_Site__c=1,concat('1-',sites.Time_Zone__c),sites.Time_Zone__c)),'1-',''),
+#    sla_business_days) as `SLA Due`,
+# if(max(IF(oh.NewValue = 'Closed Won', oh.createdDate, NULL)) is not null,
+#	max(IF(oh.NewValue = 'Closed Won', oh.createdDate, NULL)),
+#	null
+#)  AS 'To',
+#group_concat(distinct if(oli.IsDeleted=0,s.Name, null) separator ';') as 'Tags'
+#FROM 
+#salesforce.opportunity o 
+#left join salesforce.task t on t.WhatId = o.Id and t.RecordTypeId = '012d0000001clmNAAQ' and t.Status not in ('Completed')
+#INNER JOIN salesforce.account a on o.AccountId = a.Id
+#INNER JOIN salesforce.account sites on sites.ParentId = a.Id
+#LEFT JOIN salesforce.opportunityfieldhistory oh ON oh.OpportunityId = o.id 
+#LEFT JOIN salesforce.user u on oh.CreatedById = u.Id
+#left join salesforce.opportunitylineitem oli on oli.OpportunityId = o.Id
+#left join salesforce.standard__c s on oli.Standard__c = s.Id
+#WHERE 
+#o.IsDeleted = 0 
+#AND o.Business_1__c IN ('Product Services') 
+#AND o.StageName in ('Closed Won', 'Negotiation/Review') 
+#AND (oh.Field = 'StageName' AND oh.NewValue IN ('Closed Won' , 'Negotiation/Review'))
+#GROUP BY o.id)
+) t 
 where t.`Team` = 'Admin');
 
 insert into analytics.sp_log VALUES(null,'SlaUpdateAdminNewBusiness',utc_timestamp(), timestampdiff(MICROSECOND, start_time, utc_timestamp()));

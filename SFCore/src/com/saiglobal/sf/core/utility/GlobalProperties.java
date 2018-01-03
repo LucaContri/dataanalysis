@@ -49,6 +49,9 @@ public class GlobalProperties {
     private boolean dropIfTableExists=false;
 	private boolean populateDb=true;
 	
+	// Used only be Scraper
+	private String scraperProcessor;
+	
     // Used only by SfReportEngine
     private String reportBuilderClass;
     private String reportEmails;
@@ -842,6 +845,14 @@ public class GlobalProperties {
 	
 	public void setSfConnectionTimeout(String sfConnectionTimeout) {
 		this.sfConnectionTimeout = Integer.parseInt(sfConnectionTimeout);
+	}
+
+	public String getScraperProcessor() {
+		return scraperProcessor;
+	}
+
+	public void setScraperProcessor(String scraperProcessor) {
+		this.scraperProcessor = scraperProcessor;
 	}
 	
 }

@@ -1,0 +1,7 @@
+Thu 21 Dec 2017 14:59:06  INFO saiglobal:105 - Starting SAI global - Certified Organisation Scraper - com.saiglobal.scrapers.processors.JASANZProcessor
+Thu 21 Dec 2017 15:01:23 ERROR Utility:1145 - Exception in scraper: com.saiglobal.scrapers.processors.JASANZProcessor
+java.lang.NullPointerException
+	at com.saiglobal.scrapers.main.CertifiedOrganisationScraper.parseCommandLineArgs(CertifiedOrganisationScraper.java:47)
+	at com.saiglobal.scrapers.main.CertifiedOrganisationScraper.init(CertifiedOrganisationScraper.java:86)
+	at com.saiglobal.scrapers.main.CertifiedOrganisationScraper.main(CertifiedOrganisationScraper.java:92)
+Thu 21 Dec 2017 15:03:44  INFO saiglobal:105 - Starting SAI global - Certified Organisation Scraper - com.saiglobal.scrapers.processors.JASANZProcessor

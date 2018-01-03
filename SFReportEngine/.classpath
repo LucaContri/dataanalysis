@@ -76,5 +76,7 @@
 	<classpathentry kind="lib" path="C:/Code/DataAnalysis/SFReportEngine/lib/hsqldb.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="C:/Code/DataAnalysisBB/dataanalysis/SFReportEngine/lib/drill-jdbc-all-1.10.0.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/squirrel-sql-3.6/plugins/postgres.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/squirrel-sql-3.6/lib/postgresql-42.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

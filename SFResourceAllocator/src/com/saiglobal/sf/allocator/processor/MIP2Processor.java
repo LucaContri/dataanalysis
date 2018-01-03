@@ -292,7 +292,7 @@ public class MIP2Processor extends AbstractProcessor {
 		audit_duration = getAuditDurationMatrix();
 	}
 	
-	private int[][][] presolve() {
+	private int[][][] presolve() throws ParseException {
 		/*
 		 * Presolving. The purpose of presolving, which takes place
 		 * before the tree search is started, is threefold: first, it reduces 
@@ -313,6 +313,12 @@ public class MIP2Processor extends AbstractProcessor {
 					// Exclude not available dates
 					if (i<num_auditors-1 && resource_availability[i][t]<Math.ceil(audit_duration[i][j]/timeSlothours)) {
 						constraints[i][j][t] = 0;
+					}
+					// Exclude Site Cert BOPs
+					for (int t2=0; t2<Math.ceil(audit_duration[i][j]/timeSlothours); t2++) {
+						if(!workItemList.get(j).getSiteCertification().isAvailableForAudit(getTimeFromSlot(t+t2, period))) {
+							constraints[i][j][t] = 0;
+						}
 					}
 				}
 			}

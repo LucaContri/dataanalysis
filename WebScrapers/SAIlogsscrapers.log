@@ -1,0 +1,12 @@
+Thu 21 Dec 2017 15:08:10  INFO saiglobal:105 - Starting SAI global - Certified Organisation Scraper - com.saiglobal.scrapers.processors.JASANZProcessor
+Thu 21 Dec 2017 15:08:10 ERROR Utility:1145 - Exception in scraper: com.saiglobal.scrapers.processors.JASANZProcessor
+java.lang.Exception: Processor not initialised properly.  Missing Source and/or Processor Id
+	at com.saiglobal.scrapers.main.CertifiedOrganisationScraper.main(CertifiedOrganisationScraper.java:121)
+Thu 21 Dec 2017 15:11:57  INFO saiglobal:105 - Starting SAI global - Certified Organisation Scraper - com.saiglobal.scrapers.processors.JASANZProcessor
+Thu 21 Dec 2017 15:11:57 ERROR Utility:1145 - Exception in scraper: com.saiglobal.scrapers.processors.JASANZProcessor
+java.lang.Exception: Processor not initialised properly.  Missing Source and/or Processor Id
+	at com.saiglobal.scrapers.main.CertifiedOrganisationScraper.main(CertifiedOrganisationScraper.java:121)
+Thu 21 Dec 2017 15:17:56  INFO saiglobal:105 - Starting SAI global - Certified Organisation Scraper - com.saiglobal.scrapers.processors.JASANZProcessor
+Thu 21 Dec 2017 15:17:56 ERROR Utility:1145 - Exception in scraper: com.saiglobal.scrapers.processors.JASANZProcessor
+java.lang.Exception: Processor not initialised properly.  Missing Source and/or Processor Id
+	at com.saiglobal.scrapers.main.CertifiedOrganisationScraper.main(CertifiedOrganisationScraper.java:121)

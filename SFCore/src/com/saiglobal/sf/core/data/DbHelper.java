@@ -539,7 +539,7 @@ public class DbHelper {
 		return whereClauseList;
 	}
 	
-	public List<WorkItem> getWorkItemBatch(ScheduleParameters parameters) throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException, GeoCodeApiException {
+	public List<WorkItem> getWorkItemBatch(ScheduleParameters parameters) throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException, GeoCodeApiException, ParseException {
 		return this.getWorkItembatch(getWhereClause(getWhereClauseListForWorkItemsQuery(parameters)));
 	}
 
@@ -558,7 +558,7 @@ public class DbHelper {
 		return result;
 	}
 	
-	protected List<WorkItem> getWorkItembatch(String whereClause) throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException, GeoCodeApiException {
+	protected List<WorkItem> getWorkItembatch(String whereClause) throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException, GeoCodeApiException, ParseException {
 		
 		Utility.startTimeCounter("DbHelper.getWorkItembatch");
 		String query = "SELECT "
@@ -610,10 +610,12 @@ public class DbHelper {
 				+ "group_concat(distinct spf.Standard__c order by spf.Standard__c ) as 'FoSIds', "
 				+ "group_concat(distinct spf.Standard_Service_Type_Name__c order by spf.Standard__c ) as 'FoS', "
 				+ "group_concat(distinct code.Id order by code.Id) as 'CodesIds', "
-				+ "group_concat(distinct code.name order by code.Id) as 'Codes' "
+				+ "group_concat(distinct code.name order by code.Id) as 'Codes', "
+				+ "group_concat(concat(bop.From_Date__c, ';', bop.to_Date__c)) as 'bops' "
 				+ "FROM `salesforce`.`Work_Item__c` wi "
 				+ "INNER JOIN `salesforce`.`work_package__c` wp on wi.Work_Package__c=wp.Id "
 				+ "INNER JOIN `salesforce`.`certification__c` sc on wp.Site_Certification__c=sc.Id "
+				+ "left join salesforce.blackout_period__c bop on bop.Certification__c = sc.Id and bop.RecordTypeId = '012900000003IjUAAU' and bop.IsDeleted = 0 "
 				+ "INNER JOIN salesforce.site_certification_standard_program__c scsp on scsp.Site_Certification__c = sc.Id "
 				+ "inner join salesforce.standard_program__c sp on scsp.Standard_Program__c = sp.Id "
 				+ "left join salesforce.site_certification_standard_family__c scspf on scspf.Site_Certification_Standard__c = scsp.Id and scspf.IsDeleted = 0 "
